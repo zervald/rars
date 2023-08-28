@@ -7,3 +7,4 @@ Fork of [RARSM](https://github.com/TheThirdOne/rars) with added features (PRed u
 * https://github.com/TheThirdOne/rars/pull/192
 * https://github.com/TheThirdOne/rars/pull/193
 * https://github.com/TheThirdOne/rars/pull/194
+* https://github.com/TheThirdOne/rars/pull/195
