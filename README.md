@@ -9,3 +9,4 @@ Fork of [RARS](https://github.com/TheThirdOne/rars) with added features (PRed up
 * https://github.com/TheThirdOne/rars/pull/194
 * https://github.com/TheThirdOne/rars/pull/195
 * https://github.com/TheThirdOne/rars/pull/196
+* https://github.com/TheThirdOne/rars/pull/197
