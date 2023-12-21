@@ -22,3 +22,4 @@ Main-Class: rars.Launch
 EOF
 
 jar cfm ../rars-flatlaf.jar META-INF/MANIFEST.MF *
+chmod +x ../rars-flatlaf.jar
