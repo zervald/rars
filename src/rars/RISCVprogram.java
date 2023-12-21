@@ -5,8 +5,7 @@ import rars.riscv.hardware.RegisterFile;
 import rars.simulator.BackStepper;
 import rars.simulator.Simulator;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -238,7 +237,7 @@ public class RISCVprogram {
         BufferedReader inputFile;
         String line;
         try {
-            inputFile = new BufferedReader(new FileReader(file));
+            inputFile = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
             line = inputFile.readLine();
             while (line != null) {
                 sourceList.add(line);

@@ -13,10 +13,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 	/*
@@ -295,7 +292,7 @@ public class EditTabbedPane extends JTabbedPane {
             }
             File theFile = new File(editPane.getPathname());
             try {
-                BufferedWriter outFileStream = new BufferedWriter(new FileWriter(theFile));
+                BufferedWriter outFileStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(theFile), "UTF-8"));
                 outFileStream.write(editPane.getSource(), 0, editPane.getSource().length());
                 outFileStream.close();
             } catch (java.io.IOException c) {
@@ -388,7 +385,7 @@ public class EditTabbedPane extends JTabbedPane {
             // Either file with selected name does not exist or user wants to 
             // overwrite it, so go for it!
             try {
-                BufferedWriter outFileStream = new BufferedWriter(new FileWriter(theFile));
+                BufferedWriter outFileStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(theFile), "UTF-8"));
                 outFileStream.write(editPane.getSource(), 0, editPane.getSource().length());
                 outFileStream.close();
             } catch (java.io.IOException c) {
