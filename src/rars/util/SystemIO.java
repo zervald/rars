@@ -84,10 +84,10 @@ public class SystemIO {
      * @return int value corresponding to user input
      */
 
-    public static int readInteger(int serviceNumber) {
+    public static long readInteger(int serviceNumber) {
         String input = readStringInternal("0", "Enter an integer value (syscall " + serviceNumber + ")", -1);
         // Client is responsible for catching NumberFormatException
-        return Integer.parseInt(input.trim());
+        return Long.parseLong(input.trim());
     }
 
     private static String readStringInternal(String init, String prompt, int maxlength) {
