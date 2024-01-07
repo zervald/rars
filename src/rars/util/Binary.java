@@ -294,6 +294,31 @@ public class Binary {
         return t;
     }
 
+    public static String intToHexString(long d, int length) {
+        System.out.println("hex: " + d + " s:"+ length);
+        String leadingZero = new String("0");
+        String leadingX = new String("0x");
+        String t = Long.toUnsignedString(d, 16);
+        while (t.length() < 2*length)
+            t = leadingZero.concat(t);
+
+        t = leadingX.concat(t);
+        return t;
+    }
+
+    /**
+     * Perform a sign extension of `length` bytes of `d` as a whole 64bit long value.
+     * */
+    public static long signExtension(long d, int length) {
+        int l = (8-length)*8;
+        return (d << l) >> l;
+    }
+
+    public static String intToDecString(long d, int length) {
+        d = signExtension(d, length);
+        return Long.toString(d);
+    }
+
     /**
      * Returns a 6 character string representing the 16-bit hexadecimal equivalent of the
      * given integer value.  First two characters are "0x".  It assumes value will "fit"
@@ -354,8 +379,12 @@ public class Binary {
      * @return String that represents ASCII equivalent
      */
     public static String intToAscii(int d) {
+        return intToAscii(d, 4);
+    }
+
+    public static String intToAscii(long d, int length) {
         StringBuilder result = new StringBuilder(8);
-        for (int i = 3; i >= 0; i--) {
+        for (int i = length-1; i >= 0; i--) {
             int byteValue = getByte(d, i);
             result.append((byteValue < Globals.ASCII_TABLE.length) ? Globals.ASCII_TABLE[byteValue] : Globals.ASCII_NON_PRINT);
         }
@@ -616,8 +645,11 @@ public class Binary {
      * @return zero-extended byte value in low order byte.
      **/
 
-    public static int getByte(int value, int bite) {
-        return value << ((3 - bite) << 3) >>> 24;
+    public static int getByte(long value, int bite) {
+        int v = (int)(value >>> (bite*8)) & 0xFF;
+        System.out.println("getbyte " + value + " b:" + bite + " -> " + v);
+        return v;
+        //return (int)(value << ((3 - bite) << 3) >>> 24);
     }
 
     // KENV 1/4/05
