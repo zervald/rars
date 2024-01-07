@@ -532,7 +532,6 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
             for (int column = 1; column < numberOfColumns; column++) {
                 try {
                     long datum = Globals.memory.getRaw(address, bytesPerValue);
-                    System.out.printf("mem[%x]=%x\n", address, datum);
                     dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(datum, valueBase, bytesPerValue), row, column);
                 } catch (AddressErrorException aee) {
                     // Bit of a hack here.  Memory will throw an exception if you try to read directly from text segment when the
