@@ -173,6 +173,20 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                 });
         features.add(asciiDisplayCheckBox);
 
+        String[] bytesPerValueStrings = {"1 byte", "2 half","4 word","8 dword"};
+        JComboBox bytesPerValueBox = new JComboBox(bytesPerValueStrings);
+        bytesPerValueBox.setSelectedIndex(2); // word
+        bytesPerValueBox.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JComboBox cb = (JComboBox)e.getSource();
+                        int bytesPerValue = 1 << cb.getSelectedIndex();
+                        //String choice = ((String)cb.getSelectedItem()).substring(0, 1);
+                        //int bytesPerValue = Integer.parseInt(choice);
+                        DataSegmentWindow.this.setDimensions(valuesPerRow, numberOfRows, bytesPerValue);
+                    }
+                });
+        features.add(bytesPerValueBox);
 
         contentPane.add(features, BorderLayout.SOUTH);
         DataSegmentWindow.this.setDimensions(8, 16, 4);
