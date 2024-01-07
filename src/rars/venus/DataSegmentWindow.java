@@ -578,7 +578,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         int row = offset / bytesPerRow;
         int column = (offset % bytesPerRow) / bytesPerValue + 1; // column 0 reserved for address
         int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
-        ((DataTableModel) dataTable.getModel()).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(value, valueBase),
+        ((DataTableModel) dataTable.getModel()).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(value, valueBase, bytesPerValue),
                 row, column);
     }
 
@@ -982,7 +982,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
             Globals.memoryAndRegistersLock.lock();
             try {
                 try {
-                    Globals.memory.setRawWord(address, val);
+                    Globals.memory.set(address, val, bytesPerValue);
                 }
                 // somehow, user was able to display out-of-range address.  Most likely to occur between
                 // stack base and Kernel.  Also text segment with self-modifying-code setting off.
@@ -993,7 +993,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                 Globals.memoryAndRegistersLock.unlock();
             }// end synchronized block
             int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
-            data[row][col] = NumberDisplayBaseChooser.formatNumber(val, valueBase);
+            data[row][col] = NumberDisplayBaseChooser.formatNumber(val, valueBase, bytesPerValue);
             fireTableCellUpdated(row, col);
         }
 
