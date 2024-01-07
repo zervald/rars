@@ -1,6 +1,7 @@
 package rars.venus;
 
 import rars.Globals;
+import rars.riscv.InstructionSet;
 import rars.util.Binary;
 
 import javax.swing.*;
@@ -138,20 +139,20 @@ public class NumberDisplayBaseChooser extends JCheckBox {
      * @param base  the numerical base to use (currently 10 or 16)
      * @return a String equivalent of the value rendered appropriately.
      */
-    public static String formatNumber(int value, int base) {
+    public static String formatNumber(long value, int base, int length) {
         String result;
         switch (base) {
             case HEXADECIMAL:
-                result = Binary.intToHexString(value);
+                result = Binary.intToHexString(value, length);
                 break;
             case DECIMAL:
-                result = Integer.toString(value);
+                result = Binary.intToDecString(value, length);
                 break;
             case ASCII:
-                result = Binary.intToAscii(value);
+                result = Binary.intToAscii(value, length);
                 break;
             default:
-                result = Integer.toString(value);
+                result = Binary.intToDecString(value, length);
         }
         return result;
         //          if (base == NumberDisplayBaseChooser.HEXADECIMAL) {
@@ -163,11 +164,7 @@ public class NumberDisplayBaseChooser extends JCheckBox {
     }
 
     public static String formatNumber(long value, int base) {
-        if (base == NumberDisplayBaseChooser.HEXADECIMAL) {
-            return Binary.longToHexString(value);
-        } else {
-            return Long.toString(value);
-        }
+        return formatNumber(value, base, InstructionSet.rv64 ? 8 : 4);
     }
 
     /**
