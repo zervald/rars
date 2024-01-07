@@ -136,7 +136,7 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
             addressRows.put(intAddresses[i], i);
             data[i][BREAK_COLUMN] = false;
             data[i][ADDRESS_COLUMN] = NumberDisplayBaseChooser.formatUnsignedInteger(statement.getAddress(), addressBase);
-            data[i][CODE_COLUMN] = NumberDisplayBaseChooser.formatNumber(statement.getBinaryStatement(), 16);
+            data[i][CODE_COLUMN] = NumberDisplayBaseChooser.formatNumber(statement.getBinaryStatement(), 16, 4);
             data[i][BASIC_COLUMN] = statement.getPrintableBasicAssemblyStatement();
             String sourceString = "";
             if (!statement.getSource().equals("")) {

@@ -540,17 +540,17 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                     // read.  But not a good thing if it is the DataSegmentDisplay trying to read.  I'll trick Memory by
                     // temporarily enabling the setting as "non persistent" so it won't write through to the registry.
                     if (Memory.inTextSegment(address)) {
-                        int displayValue = 0;
+                        long displayValue = 0;
                         if (!Globals.getSettings().getBooleanSetting(Settings.Bool.SELF_MODIFYING_CODE_ENABLED)) {
                             Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.SELF_MODIFYING_CODE_ENABLED, true);
                             try {
-                                displayValue = Globals.memory.getWordNoNotify(address);
+                                displayValue = Globals.memory.getRaw(address, bytesPerValue);
                             } catch (AddressErrorException e) {
                                 // Still got an exception?  Doesn't seem possible but if we drop through it will write default value 0.
                             }
                             Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.SELF_MODIFYING_CODE_ENABLED, false);
                         }
-                        ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(displayValue, valueBase), row, column);
+                        dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(displayValue, valueBase, bytesPerValue), row, column);
                     }
                     // Bug Fix: the following line of code disappeared during the release 4.4 mods, but is essential to
                     // display values of 0 for valid MIPS addresses that are outside the MARS simulated address space.  Such
@@ -626,10 +626,10 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
     public void resetValues() {
         int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
-        TableModel dataModel = dataTable.getModel();
+        DataTableModel dataModel = (DataTableModel)dataTable.getModel();
         for (int row = 0; row < numberOfRows; row++) {
             for (int column = 1; column < numberOfColumns; column++) {
-                ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase), row, column);
+                dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase, bytesPerValue), row, column);
             }
         }
         disableAllButtons();
