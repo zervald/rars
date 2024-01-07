@@ -67,16 +67,16 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
     private JButton dataButton, nextButton, prevButton, stakButton, globButton, heapButton, extnButton, mmioButton, textButton;
     private JCheckBox asciiDisplayCheckBox;
 
-    private static final int VALUES_PER_ROW = 8;
-    private static final int NUMBER_OF_ROWS = 16;  // with 8 value columns, this shows 512 bytes;
-    private static final int NUMBER_OF_COLUMNS = VALUES_PER_ROW + 1;// 1 for address and 8 for values
-    private static final int BYTES_PER_VALUE = 4;
-    private static final int BYTES_PER_ROW = VALUES_PER_ROW * BYTES_PER_VALUE;
-    private static final int MEMORY_CHUNK_SIZE = NUMBER_OF_ROWS * BYTES_PER_ROW;
+    private int valuesPerRow = 8;
+    private int numberOfRows = 16; // with 8 value columns, this shows 512 bytes;
+    private int numberOfColumns; // 1 for address and 8 for values
+    private int bytesPerValue;
+    private int bytesPerRow;
+    private int memoryChunkSize;
     // PREV_NEXT_CHUNK_SIZE determines how many rows will be scrolled when Prev or Next buttons fire.
     // MEMORY_CHUNK_SIZE/2 means scroll half a table up or down.  Easier to view series that flows off the edge.
     // MEMORY_CHUNK_SIZE means scroll a full table's worth.  Scrolls through memory faster.  DPS 26-Jan-09
-    private static final int PREV_NEXT_CHUNK_SIZE = MEMORY_CHUNK_SIZE / 2;
+    private int prevNextChunkSize = memoryChunkSize / 2;
     private static final int ADDRESS_COLUMN = 0;
     private static final boolean USER_MODE = false;
     private static final boolean KERNEL_MODE = true;
@@ -173,7 +173,25 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                 });
         features.add(asciiDisplayCheckBox);
 
+
         contentPane.add(features, BorderLayout.SOUTH);
+        DataSegmentWindow.this.setDimensions(8, 16, 4);
+    }
+
+    public void setDimensions(int valuesPerRow, int numberOfRows, int bytesPerValue) {
+        this.valuesPerRow = valuesPerRow;
+        this.numberOfRows = numberOfRows;  // with 8 value columns, this shows 512 bytes;
+        numberOfColumns = this.valuesPerRow + 1;// 1 for address and 8 for values
+        this.bytesPerValue = bytesPerValue;
+        bytesPerRow = this.valuesPerRow * this.bytesPerValue;
+        memoryChunkSize = this.numberOfRows * bytesPerRow;
+        // PREV_NEXT_CHUNK_SIZE determines how many rows will be scrolled when Prev or Next buttons fire.
+        // MEMORY_CHUNK_SIZE/2 means scroll half a table up or down.  Easier to view series that flows off the edge.
+        // MEMORY_CHUNK_SIZE means scroll a full table's worth.  Scrolls through memory faster.  DPS 26-Jan-09
+        prevNextChunkSize = memoryChunkSize / 2;
+
+        DataSegmentWindow.this.updateValues();
+        DataSegmentWindow.this.updateDataAddresses();
     }
 
     public void updateBaseAddressComboBox() {
@@ -274,30 +292,30 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         if (baseAddress == -1) {
             if (desiredComboBoxIndex == GLOBAL_POINTER_ADDRESS_INDEX) {
                 baseAddress = RegisterFile.getValue(RegisterFile.GLOBAL_POINTER_REGISTER)
-                        - (RegisterFile.getValue(RegisterFile.GLOBAL_POINTER_REGISTER) % BYTES_PER_ROW);
+                        - (RegisterFile.getValue(RegisterFile.GLOBAL_POINTER_REGISTER) % bytesPerRow);
             } else if (desiredComboBoxIndex == STACK_POINTER_BASE_ADDRESS_INDEX) {
                 baseAddress = RegisterFile.getValue(RegisterFile.STACK_POINTER_REGISTER)
-                        - (RegisterFile.getValue(RegisterFile.STACK_POINTER_REGISTER) % BYTES_PER_ROW);
+                        - (RegisterFile.getValue(RegisterFile.STACK_POINTER_REGISTER) % bytesPerRow);
             } else {
                 return null;// shouldn't happen since these are the only two
             }
         }
         int byteOffset = address - baseAddress;
-        int chunkOffset = byteOffset / MEMORY_CHUNK_SIZE;
-        int byteOffsetIntoChunk = byteOffset % MEMORY_CHUNK_SIZE;
+        int chunkOffset = byteOffset / memoryChunkSize;
+        int byteOffsetIntoChunk = byteOffset % memoryChunkSize;
         // Subtract 1 from chunkOffset because we're gonna call the "next" action
         // listener to get the correct chunk loaded and displayed, and the first
         // thing it does is increment firstAddress by MEMORY_CHUNK_SIZE.  Here
         // we do an offsetting decrement in advance because we don't want the
         // increment but we want the other actions that method provides.
-        firstAddress = firstAddress + chunkOffset * MEMORY_CHUNK_SIZE - PREV_NEXT_CHUNK_SIZE;
+        firstAddress = firstAddress + chunkOffset * memoryChunkSize - prevNextChunkSize;
         nextButton.getActionListeners()[0].actionPerformed(null);
         // STEP 4:  Find cell containing this address.  Add 1 to column calculation
         // because table column 0 displays address, not memory contents.  The
         // "convertColumnIndexToView()" is not necessary because the columns cannot be
         // reordered, but I included it as a precautionary measure in case that changes.
-        int addrRow = byteOffsetIntoChunk / BYTES_PER_ROW;
-        int addrColumn = byteOffsetIntoChunk % BYTES_PER_ROW / BYTES_PER_VALUE + 1;
+        int addrRow = byteOffsetIntoChunk / bytesPerRow;
+        int addrColumn = byteOffsetIntoChunk % bytesPerRow / bytesPerValue + 1;
         addrColumn = dataTable.convertColumnIndexToView(addrColumn);
         Rectangle addressCell = dataTable.getCellRect(addrRow, addrColumn, true);
         // STEP 5:  Center the row containing the cell of interest, to the extent possible.
@@ -410,23 +428,10 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
     //  Generates the Address/Data part of the Data Segment window.
     //   Returns the JScrollPane for the Address/Data part of the Data Segment window.
     private JScrollPane generateDataPanel() {
-        dataData = new Object[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
-        int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
+        dataData = new Object[numberOfRows][numberOfColumns];
         int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
-        int address = this.homeAddress;
-        for (int row = 0; row < NUMBER_OF_ROWS; row++) {
-            dataData[row][ADDRESS_COLUMN] = NumberDisplayBaseChooser.formatUnsignedInteger(address, addressBase);
-            for (int column = 1; column < NUMBER_OF_COLUMNS; column++) {
-                try {
-                    dataData[row][column] = NumberDisplayBaseChooser.formatNumber(Globals.memory.getRawWord(address), valueBase);
-                } catch (AddressErrorException aee) {
-                    dataData[row][column] = NumberDisplayBaseChooser.formatNumber(0, valueBase);
-                }
-                address += BYTES_PER_VALUE;
-            }
-        }
-        String[] names = new String[NUMBER_OF_COLUMNS];
-        for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
+        String[] names = new String[numberOfColumns];
+        for (int i = 0; i < numberOfColumns; i++) {
             names[i] = getHeaderStringForColumn(i, addressBase);
         }
         dataTable = new MyTippedJTable(new DataTableModel(dataData, names));
@@ -440,7 +445,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         dataTable.getColumnModel().getColumn(ADDRESS_COLUMN).setCellRenderer(monoRightCellRenderer);
         // Data cells are columns 1 onward, render right-justitifed in mono font but highlightable.
         AddressCellRenderer addressCellRenderer = new AddressCellRenderer();
-        for (int i = 1; i < NUMBER_OF_COLUMNS; i++) {
+        for (int i = 1; i < numberOfColumns; i++) {
             dataTable.getColumnModel().getColumn(i).setPreferredWidth(60);
             dataTable.getColumnModel().getColumn(i).setCellRenderer(addressCellRenderer);
         }
@@ -451,7 +456,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
     // Little helper.  Is called when headers set up and each time number base changes.
     private String getHeaderStringForColumn(int i, int base) {
-        return (i == ADDRESS_COLUMN) ? "Address" : "Value (+" + Integer.toString((i - 1) * BYTES_PER_VALUE, base) + ")";
+        return (i == ADDRESS_COLUMN) ? "Address" : "Value (+" + Integer.toString((i - 1) * bytesPerValue, base) + ")";
     }
 
 
@@ -507,12 +512,14 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         int valueBase = getValueDisplayFormat();
         int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
         int address = firstAddr;
-        TableModel dataModel = dataTable.getModel();
-        for (int row = 0; row < NUMBER_OF_ROWS; row++) {
-            ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatUnsignedInteger(address, addressBase), row, ADDRESS_COLUMN);
-            for (int column = 1; column < NUMBER_OF_COLUMNS; column++) {
+        DataTableModel dataModel = (DataTableModel) dataTable.getModel();
+        for (int row = 0; row < numberOfRows; row++) {
+            dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatUnsignedInteger(address, addressBase), row, ADDRESS_COLUMN);
+            for (int column = 1; column < numberOfColumns; column++) {
                 try {
-                    ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(Globals.memory.getWordNoNotify(address), valueBase), row, column);
+                    long datum = Globals.memory.getRaw(address, bytesPerValue);
+                    System.out.printf("mem[%x]=%x\n", address, datum);
+                    dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(datum, valueBase, bytesPerValue), row, column);
                 } catch (AddressErrorException aee) {
                     // Bit of a hack here.  Memory will throw an exception if you try to read directly from text segment when the
                     // self-modifying code setting is disabled.  This is a good thing if it is the executing MIPS program trying to
@@ -537,10 +544,10 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                     // With 4.4, I added the above IF statement to work with the text segment but inadvertently removed this line!
                     // Now it becomes the "else" part, executed when not in text segment.  DPS 8-July-2014.
                     else {
-                        ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase), row, column);
+                        dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase, bytesPerValue), row, column);
                     }
                 }
-                address += BYTES_PER_VALUE;
+                address += bytesPerValue;
             }
         }
     }
@@ -551,11 +558,11 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
     public void updateCell(int address, int value) {
         int offset = address - this.firstAddress;
-        if (offset < 0 || offset >= MEMORY_CHUNK_SIZE) { // out of range
+        if (offset < 0 || offset >= memoryChunkSize) { // out of range
             return;
         }
-        int row = offset / BYTES_PER_ROW;
-        int column = (offset % BYTES_PER_ROW) / BYTES_PER_VALUE + 1; // column 0 reserved for address
+        int row = offset / bytesPerRow;
+        int column = (offset % bytesPerRow) / bytesPerValue + 1; // column 0 reserved for address
         int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
         ((DataTableModel) dataTable.getModel()).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(value, valueBase),
                 row, column);
@@ -571,13 +578,13 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
         int address = this.firstAddress;
         String formattedAddress;
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+        for (int i = 0; i < numberOfRows; i++) {
             formattedAddress = NumberDisplayBaseChooser.formatUnsignedInteger(address, addressBase);
             ((DataTableModel) dataTable.getModel()).setDisplayAndModelValueAt(formattedAddress, i, 0);
-            address += BYTES_PER_ROW;
+            address += bytesPerRow;
         }
         // column headers include address offsets, so translate them too
-        for (int i = 1; i < NUMBER_OF_COLUMNS; i++) {
+        for (int i = 1; i < numberOfColumns; i++) {
             dataTable.getColumnModel().getColumn(i).setHeaderValue(getHeaderStringForColumn(i, addressBase));
         }
         dataTable.getTableHeader().repaint();
@@ -606,8 +613,8 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
     public void resetValues() {
         int valueBase = Globals.getGui().getMainPane().getExecutePane().getValueDisplayBase();
         TableModel dataModel = dataTable.getModel();
-        for (int row = 0; row < NUMBER_OF_ROWS; row++) {
-            for (int column = 1; column < NUMBER_OF_COLUMNS; column++) {
+        for (int row = 0; row < numberOfRows; row++) {
+            for (int column = 1; column < numberOfColumns; column++) {
                 ((DataTableModel) dataModel).setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase), row, column);
             }
         }
@@ -682,7 +689,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                         // updateModelForMemoryRange requires argument to be multiple of 4
                         // but for cleaner display we'll make it multiple of 32 (last nibble is 0).
                         // This makes it easier to mentally calculate address from row address + column offset.
-                        firstAddress = firstAddress - (firstAddress % BYTES_PER_ROW);
+                        firstAddress = firstAddress - (firstAddress % bytesPerRow);
                         homeAddress = firstAddress;
                         firstAddress = setFirstAddressAndPrevNextButtonEnableStatus(firstAddress);
                         updateModelForMemoryRange(firstAddress);
@@ -696,7 +703,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                         // get $sp stack pointer, but guard against it having value below data segment
                         firstAddress = Math.max(Memory.dataSegmentBaseAddress, RegisterFile.getValue(RegisterFile.STACK_POINTER_REGISTER));
                         // See comment above for gloButton...
-                        firstAddress = firstAddress - (firstAddress % BYTES_PER_ROW);
+                        firstAddress = firstAddress - (firstAddress % bytesPerRow);
                         homeAddress = Memory.stackBaseAddress;
                         firstAddress = setFirstAddressAndPrevNextButtonEnableStatus(firstAddress);
                         updateModelForMemoryRange(firstAddress);
@@ -786,8 +793,8 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
         } else {
             prevButton.setEnabled(true);
         }
-        if (lowAddress >= highLimit - MEMORY_CHUNK_SIZE) {
-            lowAddress = highLimit - MEMORY_CHUNK_SIZE + 1;
+        if (lowAddress >= highLimit - memoryChunkSize) {
+            lowAddress = highLimit - memoryChunkSize + 1;
             nextButton.setEnabled(false);
         } else {
             nextButton.setEnabled(true);
@@ -951,7 +958,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
             // calculate address from row and column
             try {
-                address = Binary.stringToInt((String) data[row][ADDRESS_COLUMN]) + (col - 1) * BYTES_PER_VALUE;  // KENV 1/6/05
+                address = Binary.stringToInt((String) data[row][ADDRESS_COLUMN]) + (col - 1) * bytesPerValue;  // KENV 1/6/05
             } catch (NumberFormatException nfe) {
                 //  can't really happen since memory addresses are completely under
                 // the control of my software.
@@ -1060,7 +1067,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                             int index = columnModel.getColumnIndexAtX(p.x);
                             int realIndex = columnModel.getColumn(index).getModelIndex();
                             return (realIndex < 2) ? columnToolTips[realIndex]
-                                    : columnToolTips[2] + ((realIndex - 1) * 4) + columnToolTips[3];
+                                    : columnToolTips[2] + ((realIndex - 1) * bytesPerValue) + columnToolTips[3];
                         }
                     };
         }
@@ -1083,7 +1090,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
         // This one will respond when either timer goes off or button lifted.
         public void actionPerformed(ActionEvent ae) {
-            firstAddress -= PREV_NEXT_CHUNK_SIZE;
+            firstAddress -= prevNextChunkSize;
             firstAddress = setFirstAddressAndPrevNextButtonEnableStatus(firstAddress);
             updateModelForMemoryRange(firstAddress);
         }
@@ -1106,7 +1113,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
 
         // This one will respond when either timer goes off or button lifted.
         public void actionPerformed(ActionEvent ae) {
-            firstAddress += PREV_NEXT_CHUNK_SIZE;
+            firstAddress += prevNextChunkSize;
             firstAddress = setFirstAddressAndPrevNextButtonEnableStatus(firstAddress);
             updateModelForMemoryRange(firstAddress);
         }
