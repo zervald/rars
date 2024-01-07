@@ -625,6 +625,19 @@ public class Memory extends Observable {
         return get(address, length, true);
     }
 
+    public long getRaw(int address, int length) throws AddressErrorException {
+        if (length == 8) {
+            long low = get(address, 4, false);
+            long high = get(address+4, 4, false);
+            if (low < 0) low += 0x100000000l;
+            return (high << 32) | low;
+        } else {
+            long v = get(address, length, false);
+            if (v < 0) v += 0x100000000l;
+            return v;
+        }
+    }
+
     // Does the real work, but includes option to NOT notify observers.
     private int get(int address, int length, boolean notify) throws AddressErrorException {
         int value = 0;
