@@ -295,7 +295,6 @@ public class Binary {
     }
 
     public static String intToHexString(long d, int length) {
-        System.out.println("hex: " + d + " s:"+ length);
         String leadingZero = new String("0");
         String leadingX = new String("0x");
         String t = Long.toUnsignedString(d, 16);
