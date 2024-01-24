@@ -105,6 +105,13 @@ public class Token {
         return this.originalSourceLine;
     }
 
+    /**
+     * Produces the token's original text. In most cases, this is equivalent to
+     * {@code Token.getValue()} but when the token is a character literal this
+     * will return {@code "'a'"} rather then {@code getValue}'s {@code "97"}.
+     *
+     * @return original text representing this token
+     **/
     public String getOriginalText() {
         return this.originalText;
     }
