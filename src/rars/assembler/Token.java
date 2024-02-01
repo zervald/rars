@@ -47,6 +47,7 @@ public class Token {
     // original program and line will differ from the above if token was defined in an included file
     private RISCVprogram originalProgram;
     private int originalSourceLine;
+    private String originalText;
 
     /**
      * Constructor for Token class.
@@ -59,7 +60,7 @@ public class Token {
      * @see TokenTypes
      **/
 
-    public Token(TokenTypes type, String value, RISCVprogram sourceProgram, int line, int start) {
+    public Token(TokenTypes type, String value, RISCVprogram sourceProgram, int line, int start, String originalText) {
         this.type = type;
         this.value = value;
         this.sourceProgram = sourceProgram;
@@ -67,6 +68,7 @@ public class Token {
         this.sourcePos = start;
         this.originalProgram = sourceProgram;
         this.originalSourceLine = line;
+        this.originalText = originalText;
     }
 
 
@@ -101,6 +103,17 @@ public class Token {
      **/
     public int getOriginalSourceLine() {
         return this.originalSourceLine;
+    }
+
+    /**
+     * Produces the token's original text. In most cases, this is equivalent to
+     * {@code Token.getValue()} but when the token is a character literal this
+     * will return {@code "'a'"} rather then {@code getValue}'s {@code "97"}.
+     *
+     * @return original text representing this token
+     **/
+    public String getOriginalText() {
+        return this.originalText;
     }
 
     /**

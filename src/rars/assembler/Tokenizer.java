@@ -339,7 +339,7 @@ public class Tokenizer {
                         tokenStartPos = linePos + 1;
                         token[tokenPos++] = c;
                         if (line.length > linePos + 3 && line[linePos + 1] == 'I' && line[linePos + 2] == 'n' && line[linePos + 3] == 'f') {
-                            result.add(new Token(TokenTypes.REAL_NUMBER, "-Inf", program, lineNum, tokenStartPos));
+                            result.add(new Token(TokenTypes.REAL_NUMBER, "-Inf", program, lineNum, tokenStartPos, "-Inf"));
                             linePos += 3;
                             tokenPos = 0;
                             break;
@@ -491,7 +491,7 @@ public class Tokenizer {
                 // multiple tokens, so I want to get everything from the IDENTIFIER to either the
                 // COMMENT or to the end.
                 int startExpression = tokens.get(dirPos + 2).getStartPos();
-                int endExpression = tokens.get(tokenPosLastOperand).getStartPos() + tokens.get(tokenPosLastOperand).getValue().length();
+                int endExpression = tokens.get(tokenPosLastOperand).getStartPos() + tokens.get(tokenPosLastOperand).getOriginalText().length();
                 String expression = theLine.substring(startExpression - 1, endExpression - 1);
                 // Symbol cannot be redefined - the only reason for this is to act like the Gnu .eqv
                 if (equivalents.containsKey(symbol) && !equivalents.get(symbol).equals(expression)) {
@@ -536,13 +536,14 @@ public class Tokenizer {
     private void processCandidateToken(char[] token, RISCVprogram program, int line, String theLine,
                                        int tokenPos, int tokenStartPos, TokenList tokenList) {
         String value = new String(token, 0, tokenPos);
+        String original = value;
         if (value.length() > 0 && value.charAt(0) == '\'') value = preprocessCharacterLiteral(value);
         TokenTypes type = TokenTypes.matchTokenType(value);
         if (type == TokenTypes.ERROR) {
             errors.add(new ErrorMessage(program, line, tokenStartPos,
                     theLine + "\nInvalid language element: " + value));
         }
-        Token toke = new Token(type, value, program, line, tokenStartPos);
+        Token toke = new Token(type, value, program, line, tokenStartPos, original);
         tokenList.add(toke);
     }
 

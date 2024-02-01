@@ -113,7 +113,7 @@ public class OperandFormat {
             // Not an error if spec calls for identifier and candidate is operator, since operator names can be used as labels.
             // TODO: maybe add more cases in here
             if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.OPERATOR) {
-                Token replacement = new Token(TokenTypes.IDENTIFIER, candToken.getValue(), candToken.getSourceProgram(), candToken.getSourceLine(), candToken.getStartPos());
+                Token replacement = new Token(TokenTypes.IDENTIFIER, candToken.getValue(), candToken.getSourceProgram(), candToken.getSourceLine(), candToken.getStartPos(), candToken.getOriginalText());
                 cand.set(i, replacement);
                 continue;
             }
