@@ -1,6 +1,6 @@
-.eqv SUBSTITUTE 'a'     # a is 97
+	.eqv SUBSTITUTE, 'a'    # a is 97
 
-.text
+	.text
         li s0, SUBSTITUTE       # this must build
 
         li a0, 42
