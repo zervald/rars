@@ -650,7 +650,6 @@ public class Binary {
 
     public static int getByte(long value, int bite) {
         int v = (int)(value >>> (bite*8)) & 0xFF;
-        System.out.println("getbyte " + value + " b:" + bite + " -> " + v);
         return v;
         //return (int)(value << ((3 - bite) << 3) >>> 24);
     }
