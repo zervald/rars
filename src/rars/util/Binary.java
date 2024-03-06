@@ -298,6 +298,10 @@ public class Binary {
         String leadingZero = new String("0");
         String leadingX = new String("0x");
         String t = Long.toUnsignedString(d, 16);
+        if (t.length() > 2*length) {
+            // drop possible leading FF when negative number are used
+            t = t.substring(t.length() - 2*length);
+        }
         while (t.length() < 2*length)
             t = leadingZero.concat(t);
 
