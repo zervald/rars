@@ -937,6 +937,9 @@ public class Assembler {
             }
 
             if (directive == Directives.DWORD){
+                if (this.autoAlign) {
+                    this.dataAddress.set(this.alignToBoundary(this.dataAddress.get(), 8));
+                }
                 writeToDataSegment((int)longvalue, 4, token, errors);
                 writeToDataSegment((int)(longvalue>>32), 4, token, errors);
                 return;
