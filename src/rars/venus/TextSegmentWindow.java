@@ -839,13 +839,11 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
     * Cell renderer for Machine Code column.  Alternates background color by row but otherwise is
     * same as MonoRightCellRenderer.
     */
-    class MachineCodeCellRenderer extends DefaultTableCellRenderer {
+    class MachineCodeCellRenderer extends MonoRightCellRenderer {
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             JLabel cell = (JLabel) super.getTableCellRendererComponent(table, value,
                     isSelected, hasFocus, row, column);
-            cell.setFont(MonoRightCellRenderer.MONOSPACED_PLAIN_12POINT);
-            cell.setHorizontalAlignment(SwingConstants.RIGHT);
             if (row % 2 == 0) {
                 cell.setBackground(Globals.getSettings().getColorSettingByPosition(Settings.EVEN_ROW_BACKGROUND));
                 cell.setForeground(Globals.getSettings().getColorSettingByPosition(Settings.EVEN_ROW_FOREGROUND));

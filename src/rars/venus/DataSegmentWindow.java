@@ -1024,7 +1024,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
     // Special renderer capable of highlighting cells by changing background color.
     // Will set background to highlight color if certain conditions met.
 
-    class AddressCellRenderer extends DefaultTableCellRenderer {
+    class AddressCellRenderer extends MonoRightCellRenderer {
 
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus, int row, int column) {

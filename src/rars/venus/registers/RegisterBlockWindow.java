@@ -234,7 +234,7 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
     * don't want highlighting for a given column, don't use this.  Currently we highlight
     * all columns.
     */
-    private class RegisterCellRenderer extends DefaultTableCellRenderer {
+    private class RegisterCellRenderer extends MonoRightCellRenderer {
         private Font font;
         private int alignment;
 
