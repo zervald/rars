@@ -425,9 +425,11 @@ public class SystemIO {
 
     /**
      * Reset all files -- clears out the file descriptor table.
+     * Reset the buffered reader from the input field of the gui.
      */
     public static void resetFiles() {
         FileIOData.resetFiles();
+        InputFromGui.reset();
     }
 
     /**
@@ -437,6 +439,17 @@ public class SystemIO {
      */
     public static String getFileErrorMessage() {
         return fileErrorString;
+    }
+
+    /**
+     * @return BufferedReader from the input field of the gui
+     */
+    private static BufferedReader getInputReaderFromGui() {
+        if (InputFromGui.inputReaderFromGui == null) {
+            InputFromGui.inputReaderFromGui =
+                    new BufferedReader(new StringReader(Globals.getGui().getMessagesPane().getInputField()));
+        }
+        return InputFromGui.inputReaderFromGui;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -685,4 +698,22 @@ public class SystemIO {
         }
 
     } // end private class FileIOData
+
+    /**
+     * Maintain information on input from input window of GUI
+     */
+    private static class InputFromGui {
+        public static BufferedReader inputReaderFromGui;
+
+        private static void reset() {
+            if (inputReaderFromGui != null) {
+                try {
+                    inputReaderFromGui.close();
+                    inputReaderFromGui=null;
+                } catch (IOException ioe) {
+                }
+            }
+        }
+
+    }
 }
