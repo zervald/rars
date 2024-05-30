@@ -102,6 +102,13 @@ public class SystemIO {
         } else {
             if (Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
                 input = Globals.getGui().getMessagesPane().getInputString(prompt);
+            } else if (!Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+                try {
+                    input = getInputReaderFromGui().readLine();
+                    if (input == null)
+                        input = "";
+                } catch (IOException e) {
+                }
             } else {
                 input = Globals.getGui().getMessagesPane().getInputString(maxlength);
             }
@@ -273,13 +280,30 @@ public class SystemIO {
         /////////////// DPS 8-Jan-2013  //////////////////////////////////////////////////
         /// Read from STDIN file descriptor while using IDE - get input from Messages pane.
         if (fd == STDIN && Globals.getGui() != null) {
-            String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
-            byte[] bytesRead = input.getBytes();
+            //asks user for input in run pane
+            if (Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+                String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
+                byte[] bytesRead = input.getBytes();
 
-            for (int i = 0; i < myBuffer.length; i++) {
-                myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+                for (int i = 0; i < myBuffer.length; i++) {
+                    myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+                }
+                return Math.min(myBuffer.length, bytesRead.length);
+                //takes input from input pane
+            } else {
+                try {
+                    String input = "";
+                    for (int i = 0; i < myBuffer.length; i++) {
+                        input = input + (char) getInputReaderFromGui().read();
+                    }
+                    byte[] bytesRead = input.getBytes();
+                    for (int i = 0; i < myBuffer.length; i++) {
+                        myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+                    }
+                    return Math.min(myBuffer.length, bytesRead.length);
+                } catch (IOException e) {
+                }
             }
-            return Math.min(myBuffer.length, bytesRead.length);
         }
         ////////////////////////////////////////////////////////////////////////////////////
         //// When running in command mode, code below works for either regular file or STDIN
