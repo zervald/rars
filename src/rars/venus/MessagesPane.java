@@ -56,8 +56,8 @@ public class MessagesPane extends JPanel {
     private JTabbedPane leftPane;
     private JTabbedPane rightPane;
     private JSplitPane splitter;
-    JTextArea assemble, run, output;
-    private JPanel assembleTab, runTab, outputTab;
+    JTextArea assemble, run, input, output;
+    private JPanel assembleTab, runTab, inputTab, outputTab;
     // These constants are designed to keep scrolled contents of the
     // two message areas from becoming overwhelmingly large (which
     // seems to slow things down as new text is appended).  Once it
@@ -78,9 +78,11 @@ public class MessagesPane extends JPanel {
         rightPane = new JTabbedPane();
         assemble = new JTextArea();
         run = new JTextArea();
+        input = new JTextArea();
         output = new JTextArea();
         assemble.setEditable(false);
         run.setEditable(false);
+        input.setEditable(true);
         output.setEditable(false);
         // Set both text areas to mono font.  For assemble
         // pane, will make messages more readable.  For run
@@ -89,6 +91,7 @@ public class MessagesPane extends JPanel {
         Font monoFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
         assemble.setFont(monoFont);
         run.setFont(monoFont);
+        input.setFont(monoFont);
         output.setFont(monoFont);
 
         JButton assembleTabClearButton = new JButton("Clear");
@@ -180,6 +183,19 @@ public class MessagesPane extends JPanel {
         runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
+        JButton inputTabClearButton = new JButton("Clear");
+        inputTabClearButton.setToolTipText("Clear the input area");
+        inputTabClearButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        input.setText("");
+                    }
+                });
+        inputTab = new JPanel(new BorderLayout());
+        inputTab.add(createBoxForButton(inputTabClearButton), BorderLayout.WEST);
+        inputTab.add(new JScrollPane(input, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+
         JButton outputTabClearButton = new JButton("Clear");
         outputTabClearButton.setToolTipText("Clear the Output area");
         outputTabClearButton.addActionListener(
@@ -195,12 +211,14 @@ public class MessagesPane extends JPanel {
 
         leftPane.addTab("Messages", assembleTab);
         leftPane.addTab("Run", runTab);
+        leftPane.addTab("Input", inputTab);
         leftPane.setForeground(Color.BLACK);
         rightPane.addTab("Output", outputTab);
         rightPane.setForeground(Color.BLACK);
 
         leftPane.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
-        leftPane.setToolTipTextAt(1, "Simulated console input and other run messages");
+        leftPane.setToolTipTextAt(1, "Simulated console input (used while running) and other run messages");
+        leftPane.setToolTipTextAt(2, "Simulated console input (to use before running)");
         rightPane.setToolTipTextAt(0, "Simulated console output");
 
         splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane, rightPane);
@@ -305,6 +323,15 @@ public class MessagesPane extends JPanel {
      */
     public JTextArea getRunTextArea() {
         return run;
+    }
+
+    /**
+     * Returns the text written in the input field
+     *
+     * @return input text field content
+     */
+    public String getInputField() {
+        return input.getText();
     }
 
     /**
