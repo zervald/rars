@@ -465,7 +465,7 @@ public class SystemIO {
     private static void print2Gui(String output){
         long time = System.currentTimeMillis();
         if (time > lasttime) {
-            Globals.getGui().getMessagesPane().postRunMessage(buffer+output);
+            Globals.getGui().getMessagesPane().postOutput(buffer+output);
             buffer = "";
             lasttime = time + 100;
         } else {
@@ -479,7 +479,7 @@ public class SystemIO {
     public static void flush(boolean force) {
         long time = System.currentTimeMillis();
         if (buffer != "" && (force || time > lasttime)){
-            Globals.getGui().getMessagesPane().postRunMessage(buffer);
+            Globals.getGui().getMessagesPane().postOutput(buffer);
             buffer = "";
             lasttime = time + 100;
         }

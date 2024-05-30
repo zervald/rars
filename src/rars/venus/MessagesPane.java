@@ -24,23 +24,23 @@ Copyright (c) 2003-2010,  Pete Sanderson and Kenneth Vollmar
 Developed by Pete Sanderson (psanderson@otterbein.edu)
 and Kenneth Vollmar (kenvollmar@missouristate.edu)
 
-Permission is hereby granted, free of charge, to any person obtaining 
-a copy of this software and associated documentation files (the 
-"Software"), to deal in the Software without restriction, including 
-without limitation the rights to use, copy, modify, merge, publish, 
-distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject 
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject
 to the following conditions:
 
-The above copyright notice and this permission notice shall be 
+The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
-ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (MIT license, http://www.opensource.org/licenses/mit-license.html)
@@ -52,9 +52,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @author Team JSpim
  **/
 
-public class MessagesPane extends JTabbedPane {
-    JTextArea assemble, run;
-    private JPanel assembleTab, runTab;
+public class MessagesPane extends JPanel {
+    private JTabbedPane leftPane;
+    private JTabbedPane rightPane;
+    private JSplitPane splitter;
+    JTextArea assemble, run, output;
+    private JPanel assembleTab, runTab, outputTab;
     // These constants are designed to keep scrolled contents of the
     // two message areas from becoming overwhelmingly large (which
     // seems to slow things down as new text is appended).  Once it
@@ -71,10 +74,14 @@ public class MessagesPane extends JTabbedPane {
     public MessagesPane() {
         super();
         this.setMinimumSize(new Dimension(0, 0));
+        leftPane = new JTabbedPane();
+        rightPane = new JTabbedPane();
         assemble = new JTextArea();
         run = new JTextArea();
+        output = new JTextArea();
         assemble.setEditable(false);
         run.setEditable(false);
+        output.setEditable(false);
         // Set both text areas to mono font.  For assemble
         // pane, will make messages more readable.  For run
         // pane, will allow properly aligned "text graphics"
@@ -82,6 +89,7 @@ public class MessagesPane extends JTabbedPane {
         Font monoFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
         assemble.setFont(monoFont);
         run.setFont(monoFont);
+        output.setFont(monoFont);
 
         JButton assembleTabClearButton = new JButton("Clear");
         assembleTabClearButton.setToolTipText("Clear the Messages area");
@@ -160,7 +168,7 @@ public class MessagesPane extends JTabbedPane {
                 });
 
         JButton runTabClearButton = new JButton("Clear");
-        runTabClearButton.setToolTipText("Clear the Run I/O area");
+        runTabClearButton.setToolTipText("Clear the Run area");
         runTabClearButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -172,12 +180,35 @@ public class MessagesPane extends JTabbedPane {
         runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
-        this.addTab("Messages", assembleTab);
-        this.addTab("Run I/O", runTab);
-        this.setForeground(Color.BLACK);
+        JButton outputTabClearButton = new JButton("Clear");
+        outputTabClearButton.setToolTipText("Clear the Output area");
+        outputTabClearButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        output.setText("");
+                    }
+                });
+        outputTab = new JPanel(new BorderLayout());
+        outputTab.add(createBoxForButton(outputTabClearButton), BorderLayout.EAST);
+        outputTab.add(new JScrollPane(output, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
-        this.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
-        this.setToolTipTextAt(1, "Simulated console input and output");
+        leftPane.addTab("Messages", assembleTab);
+        leftPane.addTab("Run", runTab);
+        leftPane.setForeground(Color.BLACK);
+        rightPane.addTab("Output", outputTab);
+        rightPane.setForeground(Color.BLACK);
+
+        leftPane.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
+        leftPane.setToolTipTextAt(1, "Simulated console input and other run messages");
+        rightPane.setToolTipTextAt(0, "Simulated console output");
+
+        splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane, rightPane);
+        splitter.setOneTouchExpandable(true);
+        splitter.resetToPreferredSizes();
+        splitter.setResizeWeight(0.5);
+        this.setLayout(new BorderLayout());
+        this.add(splitter);
     }
 
     // Center given button in a box, centered vertically and 6 pixels on left and right
@@ -294,7 +325,7 @@ public class MessagesPane extends JTabbedPane {
             }
         }
         assemble.setCaretPosition(assemble.getDocument().getLength());
-        setSelectedComponent(assembleTab);
+        leftPane.setSelectedComponent(assembleTab);
     }
 
     /**
@@ -313,7 +344,7 @@ public class MessagesPane extends JTabbedPane {
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
-                        setSelectedComponent(runTab);
+                        leftPane.setSelectedComponent(runTab);
                         run.append(mess);
                         // can do some crude cutting here.  If the document gets "very large",
                         // let's cut off the oldest text. This will limit scrolling but the limit
@@ -329,18 +360,34 @@ public class MessagesPane extends JTabbedPane {
                 });
     }
 
+    public void postOutput(String message) {
+        final String mess = message;
+        SwingUtilities.invokeLater(
+                new Runnable() {
+                    public void run() {
+                        output.append(mess);
+                        if (output.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
+                            try {
+                                output.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
+                            } catch (BadLocationException ble) {
+                            }
+                        }
+                    }
+                });
+    }
+
     /**
      * Make the assembler message tab current (up front)
      */
     public void selectMessageTab() {
-        setSelectedComponent(assembleTab);
+        leftPane.setSelectedComponent(assembleTab);
     }
 
     /**
      * Make the runtime message tab current (up front)
      */
     public void selectRunMessageTab() {
-        setSelectedComponent(runTab);
+        leftPane.setSelectedComponent(runTab);
     }
 
     /**
