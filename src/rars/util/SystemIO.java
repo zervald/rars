@@ -107,7 +107,7 @@ public class SystemIO {
                     input = getInputReaderFromGui().readLine();
                     if (input == null)
                         input = "";
-                } catch (IOException e) {
+                } catch (IOException e) {   // as above
                 }
             } else {
                 input = Globals.getGui().getMessagesPane().getInputString(maxlength);
@@ -266,6 +266,20 @@ public class SystemIO {
 
     } // end writeToFile
 
+    /**
+     * Read bytes from string in a byte buffer
+     *
+     * @param input input to read
+     * @param buffer byte array to contain bytes read
+     * @return number of bytes read
+     */
+    private static int readInBuffer(String input, byte[] buffer) {
+        byte[] bytesRead = input.getBytes();
+        for (int i = 0; i < buffer.length; i++) {
+            buffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+        }
+        return Math.min(buffer.length, bytesRead.length);
+    }
 
     /**
      * Read bytes from file.
@@ -283,25 +297,18 @@ public class SystemIO {
             //asks user for input in run pane
             if (Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
                 String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
-                byte[] bytesRead = input.getBytes();
-
-                for (int i = 0; i < myBuffer.length; i++) {
-                    myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
-                }
-                return Math.min(myBuffer.length, bytesRead.length);
-                //takes input from input pane
+                return readInBuffer(input, myBuffer);
+            //takes input from input pane
             } else {
                 try {
                     String input = "";
                     for (int i = 0; i < myBuffer.length; i++) {
                         input = input + (char) getInputReaderFromGui().read();
                     }
-                    byte[] bytesRead = input.getBytes();
-                    for (int i = 0; i < myBuffer.length; i++) {
-                        myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
-                    }
-                    return Math.min(myBuffer.length, bytesRead.length);
+                    return readInBuffer(input, myBuffer);
                 } catch (IOException e) {
+                    fileErrorString = "IO Exception on read from the input window of GUI";
+                    return -1;
                 }
             }
         }
@@ -733,9 +740,11 @@ public class SystemIO {
             if (inputReaderFromGui != null) {
                 try {
                     inputReaderFromGui.close();
-                    inputReaderFromGui=null;
-                } catch (IOException ioe) {
+                } catch (IOException e) {
+                    // will only read the above line if this inputReader has been opened
                 }
+                inputReaderFromGui=null;
+
             }
         }
 

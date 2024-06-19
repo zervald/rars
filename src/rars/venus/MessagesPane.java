@@ -387,16 +387,25 @@ public class MessagesPane extends JPanel {
                 });
     }
 
+    /**
+     * Post a message to the output display
+     *
+     * @param message
+     */
     public void postOutput(String message) {
         final String mess = message;
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
                         output.append(mess);
+                        // as in method above: if the document gets "very large",
+                        // let's cut off the oldest text. This will limit scrolling but the limit
+                        // can be set reasonably high.
                         if (output.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
                             try {
                                 output.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
                             } catch (BadLocationException ble) {
+                                // as above
                             }
                         }
                     }
