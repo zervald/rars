@@ -114,13 +114,13 @@ public class Settings extends Observable {
          */
         PROGRAM_ARGUMENTS("ProgramArguments", false),
         /**
-         * Flag to control whether or not highlighting is applied to data segment window
+         * Flag to control whether or not highlighting is applied when explicit writing
          */
-        DATA_SEGMENT_HIGHLIGHTING("DataSegmentHighlighting", true),
+        EXPLICIT_WRITE_HIGHLIGHTING("ExplicitWriteHighlighting", true),
         /**
-         * Flag to control whether or not highlighting is applied to register windows
+         * Flag to control whether or not highlighting is applied when explicit reading
          */
-        REGISTERS_HIGHLIGHTING("RegistersHighlighting", true),
+        EXPLICIT_READ_HIGHLIGHTING("ExplicitReadHighlighting", true),
         /**
          * Flag to control whether or not assembler automatically initializes program counter to 'main's address
          */
@@ -244,25 +244,25 @@ public class Settings extends Observable {
      */
     public static final int TEXTSEGMENT_DELAYSLOT_HIGHLIGHT_FONT = 4;
     /**
-     * Font for text segment highlighted background
+     * Font for data segment highlighted background
      */
-    public static final int DATASEGMENT_HIGHLIGHT_FONT = 5;
+    public static final int EXPLICIT_WRITE_HIGHLIGHT_FONT = 5;
     /**
-     * Font for register highlighted background
+     * Font for data segment highlighted background
      */
-    public static final int REGISTER_HIGHLIGHT_FONT = 6;
+    public static final int EXPLICIT_READ_HIGHLIGHT_FONT = 6;
 
     private static final String[] fontFamilySettingsKeys = {"EditorFontFamily", "EvenRowFontFamily",
             "OddRowFontFamily", " TextSegmentHighlightFontFamily", "TextSegmentDelayslotHighightFontFamily",
-            "DataSegmentHighlightFontFamily", "RegisterHighlightFontFamily"
+            "ExplicitWriteHighlightFontFamily","ExplicitReadHighlightFontFamily"
     };
     private static final String[] fontStyleSettingsKeys = {"EditorFontStyle", "EvenRowFontStyle",
             "OddRowFontStyle", " TextSegmentHighlightFontStyle", "TextSegmentDelayslotHighightFontStyle",
-            "DataSegmentHighlightFontStyle", "RegisterHighlightFontStyle"
+            "ExplicitWriteHighlightFontStyle", "ExplicitWriteHighlightFontStyle"
     };
     private static final String[] fontSizeSettingsKeys = {"EditorFontSize", "EvenRowFontSize",
             "OddRowFontSize", " TextSegmentHighlightFontSize", "TextSegmentDelayslotHighightFontSize",
-            "DataSegmentHighlightFontSize", "RegisterHighlightFontSize"
+            "ExplicitWriteHighlightFontSize", "ExplicitWriteHighlightFontSize"
     };
 
 
@@ -321,21 +321,21 @@ public class Settings extends Observable {
      */
     public static final int TEXTSEGMENT_DELAYSLOT_HIGHLIGHT_FOREGROUND = 7;
     /**
-     * RGB color for text segment highlighted background
+     * RGB color for highlighted background when explicitly writing data
      */
-    public static final int DATASEGMENT_HIGHLIGHT_BACKGROUND = 8;
+    public static final int EXPLICIT_WRITE_HIGHLIGHT_BACKGROUND = 8;
     /**
-     * RGB color for text segment highlighted foreground
+     * RGB color for highlighted foreground when explicitly writing data
      */
-    public static final int DATASEGMENT_HIGHLIGHT_FOREGROUND = 9;
+    public static final int EXPLICIT_WRITE_HIGHLIGHT_FOREGROUND = 9;
     /**
-     * RGB color for register highlighted background
+     * RGB color for highlighted background when explicitly reading data
      */
-    public static final int REGISTER_HIGHLIGHT_BACKGROUND = 10;
+    public static final int EXPLICIT_READ_HIGHLIGHT_BACKGROUND = 10;
     /**
-     * RGB color for register highlighted foreground
+     * RGB color for highlighted foreground when explicitly reading data
      */
-    public static final int REGISTER_HIGHLIGHT_FOREGROUND = 11;
+    public static final int EXPLICIT_READ_HIGHLIGHT_FOREGROUND = 11;
     /**
      * RGB background color of Editor
      */
@@ -371,8 +371,8 @@ public class Settings extends Observable {
             "EvenRowBackground", "EvenRowForeground", "OddRowBackground", "OddRowForeground",
             "TextSegmentHighlightBackground", "TextSegmentHighlightForeground",
             "TextSegmentDelaySlotHighlightBackground", "TextSegmentDelaySlotHighlightForeground",
-            "DataSegmentHighlightBackground", "DataSegmentHighlightForeground",
-            "RegisterHighlightBackground", "RegisterHighlightForeground",
+            "ExplicitWriteHighlightBackground", "ExplicitWriteHighlightForeground",
+            "ExplicitReadHighlightBackground", "ExplicitReadRegisterHighlightForeground",
             "EditorBackground", "EditorForeground", "EditorLineHighlight", "EditorSelection", "EditorCaretColor"};
     /**
      * Last resort default values for color settings;
@@ -381,7 +381,7 @@ public class Settings extends Observable {
      * Must match key by list position.
      */
     private static String[] defaultColorSettingsValues = {
-            "0x00e0e0e0", "0", "0x00ffffff", "0", "0x00ffff99", "0", "0x0033ff00", "0", "0x0099ccff", "0", "0x0099cc55", "0", "0x00ffffff", "0x00000000", "0x00eeeeee", "0x00ccccff", "0x00000000"};
+            "0x00e0e0e0", "0", "0x00ffffff", "0", "0x00ffff99", "0", "0x0033ff00", "0", "0x00ff8080", "0", "0x0099ccff","0", "0x00ffffff", "0x00000000", "0x00eeeeee", "0x00ccccff", "0x00000000"};
 
     interface SystemColorProvider { Color getColor();}
     private SystemColorProvider[] systemColors;

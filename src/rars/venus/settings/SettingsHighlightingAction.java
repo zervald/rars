@@ -55,8 +55,8 @@ public class SettingsHighlightingAction extends GuiAction {
     private static final int[] backgroundSettingPositions = {
             Settings.TEXTSEGMENT_HIGHLIGHT_BACKGROUND,
             Settings.TEXTSEGMENT_DELAYSLOT_HIGHLIGHT_BACKGROUND,
-            Settings.DATASEGMENT_HIGHLIGHT_BACKGROUND,
-            Settings.REGISTER_HIGHLIGHT_BACKGROUND,
+            Settings.EXPLICIT_WRITE_HIGHLIGHT_BACKGROUND,
+            Settings.EXPLICIT_READ_HIGHLIGHT_BACKGROUND,
             Settings.EVEN_ROW_BACKGROUND,
             Settings.ODD_ROW_BACKGROUND
     };
@@ -64,8 +64,8 @@ public class SettingsHighlightingAction extends GuiAction {
     private static final int[] foregroundSettingPositions = {
             Settings.TEXTSEGMENT_HIGHLIGHT_FOREGROUND,
             Settings.TEXTSEGMENT_DELAYSLOT_HIGHLIGHT_FOREGROUND,
-            Settings.DATASEGMENT_HIGHLIGHT_FOREGROUND,
-            Settings.REGISTER_HIGHLIGHT_FOREGROUND,
+            Settings.EXPLICIT_WRITE_HIGHLIGHT_FOREGROUND,
+            Settings.EXPLICIT_READ_HIGHLIGHT_FOREGROUND,
             Settings.EVEN_ROW_FOREGROUND,
             Settings.ODD_ROW_FOREGROUND
     };
@@ -73,8 +73,8 @@ public class SettingsHighlightingAction extends GuiAction {
     private static final int[] fontSettingPositions = {
             Settings.TEXTSEGMENT_HIGHLIGHT_FONT,
             Settings.TEXTSEGMENT_DELAYSLOT_HIGHLIGHT_FONT,
-            Settings.DATASEGMENT_HIGHLIGHT_FONT,
-            Settings.REGISTER_HIGHLIGHT_FONT,
+            Settings.EXPLICIT_WRITE_HIGHLIGHT_FONT,
+            Settings.EXPLICIT_READ_HIGHLIGHT_FONT,
             Settings.EVEN_ROW_FONT,
             Settings.ODD_ROW_FONT
     };
