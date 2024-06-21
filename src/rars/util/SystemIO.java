@@ -102,6 +102,13 @@ public class SystemIO {
         } else {
             if (Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
                 input = Globals.getGui().getMessagesPane().getInputString(prompt);
+            } else if (!Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+                try {
+                    input = getInputReaderFromGui().readLine();
+                    if (input == null)
+                        input = "";
+                } catch (IOException e) {   // as above
+                }
             } else {
                 input = Globals.getGui().getMessagesPane().getInputString(maxlength);
             }
@@ -259,6 +266,20 @@ public class SystemIO {
 
     } // end writeToFile
 
+    /**
+     * Read bytes from string in a byte buffer
+     *
+     * @param input input to read
+     * @param buffer byte array to contain bytes read
+     * @return number of bytes read
+     */
+    private static int readInBuffer(String input, byte[] buffer) {
+        byte[] bytesRead = input.getBytes();
+        for (int i = 0; i < buffer.length; i++) {
+            buffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+        }
+        return Math.min(buffer.length, bytesRead.length);
+    }
 
     /**
      * Read bytes from file.
@@ -273,13 +294,23 @@ public class SystemIO {
         /////////////// DPS 8-Jan-2013  //////////////////////////////////////////////////
         /// Read from STDIN file descriptor while using IDE - get input from Messages pane.
         if (fd == STDIN && Globals.getGui() != null) {
-            String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
-            byte[] bytesRead = input.getBytes();
-
-            for (int i = 0; i < myBuffer.length; i++) {
-                myBuffer[i] = (i < bytesRead.length) ? bytesRead[i] : 0;
+            //asks user for input in run pane
+            if (Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+                String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
+                return readInBuffer(input, myBuffer);
+            //takes input from input pane
+            } else {
+                try {
+                    String input = "";
+                    for (int i = 0; i < myBuffer.length; i++) {
+                        input = input + (char) getInputReaderFromGui().read();
+                    }
+                    return readInBuffer(input, myBuffer);
+                } catch (IOException e) {
+                    fileErrorString = "IO Exception on read from the input window of GUI";
+                    return -1;
+                }
             }
-            return Math.min(myBuffer.length, bytesRead.length);
         }
         ////////////////////////////////////////////////////////////////////////////////////
         //// When running in command mode, code below works for either regular file or STDIN
@@ -425,9 +456,11 @@ public class SystemIO {
 
     /**
      * Reset all files -- clears out the file descriptor table.
+     * Reset the buffered reader from the input field of the gui.
      */
     public static void resetFiles() {
         FileIOData.resetFiles();
+        InputFromGui.reset();
     }
 
     /**
@@ -437,6 +470,17 @@ public class SystemIO {
      */
     public static String getFileErrorMessage() {
         return fileErrorString;
+    }
+
+    /**
+     * @return BufferedReader from the input field of the gui
+     */
+    private static BufferedReader getInputReaderFromGui() {
+        if (InputFromGui.inputReaderFromGui == null) {
+            InputFromGui.inputReaderFromGui =
+                    new BufferedReader(new StringReader(Globals.getGui().getMessagesPane().getInputField()));
+        }
+        return InputFromGui.inputReaderFromGui;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -465,7 +509,7 @@ public class SystemIO {
     private static void print2Gui(String output){
         long time = System.currentTimeMillis();
         if (time > lasttime) {
-            Globals.getGui().getMessagesPane().postRunMessage(buffer+output);
+            Globals.getGui().getMessagesPane().postOutput(buffer+output);
             buffer = "";
             lasttime = time + 100;
         } else {
@@ -479,7 +523,7 @@ public class SystemIO {
     public static void flush(boolean force) {
         long time = System.currentTimeMillis();
         if (buffer != "" && (force || time > lasttime)){
-            Globals.getGui().getMessagesPane().postRunMessage(buffer);
+            Globals.getGui().getMessagesPane().postOutput(buffer);
             buffer = "";
             lasttime = time + 100;
         }
@@ -685,4 +729,24 @@ public class SystemIO {
         }
 
     } // end private class FileIOData
+
+    /**
+     * Maintain information on input from input window of GUI
+     */
+    private static class InputFromGui {
+        public static BufferedReader inputReaderFromGui;
+
+        private static void reset() {
+            if (inputReaderFromGui != null) {
+                try {
+                    inputReaderFromGui.close();
+                } catch (IOException e) {
+                    // will only read the above line if this inputReader has been opened
+                }
+                inputReaderFromGui=null;
+
+            }
+        }
+
+    }
 }
