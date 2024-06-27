@@ -54,8 +54,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 public class MessagesPane extends JPanel {
     private JTabbedPane leftPane;
-    private JTabbedPane rightPane;
-    private JSplitPane splitter;
+    private JSplitPane batchTab;
     JTextArea assemble, run, input, output;
     private JPanel assembleTab, runTab, inputTab, outputTab;
     // These constants are designed to keep scrolled contents of the
@@ -75,7 +74,6 @@ public class MessagesPane extends JPanel {
         super();
         this.setMinimumSize(new Dimension(0, 0));
         leftPane = new JTabbedPane();
-        rightPane = new JTabbedPane();
         assemble = new JTextArea();
         run = new JTextArea();
         input = new JTextArea();
@@ -183,7 +181,7 @@ public class MessagesPane extends JPanel {
         runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
-        JButton inputTabClearButton = new JButton("Clear");
+        JButton inputTabClearButton = new JButton("Clear input");
         inputTabClearButton.setToolTipText("Clear the input area");
         inputTabClearButton.addActionListener(
                 new ActionListener() {
@@ -196,7 +194,7 @@ public class MessagesPane extends JPanel {
         inputTab.add(new JScrollPane(input, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
-        JButton outputTabClearButton = new JButton("Clear");
+        JButton outputTabClearButton = new JButton("Clear output");
         outputTabClearButton.setToolTipText("Clear the Output area");
         outputTabClearButton.addActionListener(
                 new ActionListener() {
@@ -209,24 +207,22 @@ public class MessagesPane extends JPanel {
         outputTab.add(new JScrollPane(output, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
+        batchTab = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inputTab, outputTab);
+        batchTab.setOneTouchExpandable(true);
+        batchTab.resetToPreferredSizes();
+        batchTab.setResizeWeight(0.5);
+
         leftPane.addTab("Messages", assembleTab);
-        leftPane.addTab("Run", runTab);
-        leftPane.addTab("Input", inputTab);
+        leftPane.addTab("Interactive", runTab);
+        leftPane.addTab("Batch", batchTab);
         leftPane.setForeground(Color.BLACK);
-        rightPane.addTab("Output", outputTab);
-        rightPane.setForeground(Color.BLACK);
 
         leftPane.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
         leftPane.setToolTipTextAt(1, "Simulated console input (used while running) and other run messages");
         leftPane.setToolTipTextAt(2, "Simulated console input (to use before running)");
-        rightPane.setToolTipTextAt(0, "Simulated console output");
 
-        splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane, rightPane);
-        splitter.setOneTouchExpandable(true);
-        splitter.resetToPreferredSizes();
-        splitter.setResizeWeight(0.5);
         this.setLayout(new BorderLayout());
-        this.add(splitter);
+        this.add(leftPane);
     }
 
     // Center given button in a box, centered vertically and 6 pixels on left and right
@@ -384,8 +380,13 @@ public class MessagesPane extends JPanel {
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
-                        leftPane.setSelectedComponent(runTab);
+                        if (isInteractiveMode()) {
+                            leftPane.setSelectedComponent(runTab);
+                        } else {
+                            leftPane.setSelectedComponent(batchTab);
+                        }
                         append(run, mess);
+                        append(output, mess);
                     }
                 });
     }
@@ -400,6 +401,7 @@ public class MessagesPane extends JPanel {
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
+                        append(run, mess);
                         append(output, mess);
                     }
                 });
