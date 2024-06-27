@@ -102,7 +102,7 @@ public class SystemIO {
         } else {
             if (Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
                 input = Globals.getGui().getMessagesPane().getInputString(prompt);
-            } else if (!Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+            } else if (!Globals.getGui().getMessagesPane().isInteractiveMode()) {
                 try {
                     input = getInputReaderFromGui().readLine();
                     if (input == null)

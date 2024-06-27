@@ -326,6 +326,14 @@ public class MessagesPane extends JPanel {
     }
 
     /**
+     * Return true if the execution is (or will be) in interactive mode and false for batch mode.
+     * Currently, batch mode means that the input field is not empty.
+     */
+    public Boolean isInteractiveMode() {
+        return input.getText().isEmpty();
+    }
+
+    /**
      * Returns the text written in the input field
      *
      * @return input text field content
