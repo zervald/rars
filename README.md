@@ -10,3 +10,5 @@ Fork of [RARS](https://github.com/TheThirdOne/rars) with added features (PRed up
 * https://github.com/TheThirdOne/rars/pull/195
 * https://github.com/TheThirdOne/rars/pull/196
 * https://github.com/TheThirdOne/rars/pull/197
+
+Unfortunately, upstream is not responsive, so we stopped doing PR as they require some unmerges ones.
