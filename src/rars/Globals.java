@@ -51,6 +51,7 @@ public class Globals {
     // List these first because they are referenced by methods called at initialization.
     private static String configPropertiesFile = "Config";
     private static String syscallPropertiesFile = "Syscall";
+    private static String versionPropertiesFile = "Version";
 
     /**
      * The set of implemented instructions.
@@ -100,7 +101,15 @@ public class Globals {
     /**
      * The current version number. Can't wait for "initialize()" call to get it.
      */
-    public static final String version = "1.6";
+    public static final String version = getVersion();
+    /**
+     * Get the current version from a property file set at built-time.
+     * */
+    private static String getVersion() {
+	    String v = getPropertyEntry(versionPropertiesFile, "Version");
+	    if (v == null) return "1.6-undefined";
+	    return v;
+    }
     /**
      * List of accepted file extensions for RISCV assembly source files.
      */

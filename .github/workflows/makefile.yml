@@ -12,6 +12,7 @@ jobs:
     steps:
     - run: sudo apt-get update && sudo apt-get install openjdk-17-jdk-headless
     - uses: actions/checkout@v4
+    - run: git fetch origin --tags --unshallow
     - run: git submodule update --init
     - run: ./build-jar.sh
     - run: ./build-jar-flatlaf.sh

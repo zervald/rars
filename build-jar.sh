@@ -1,5 +1,7 @@
 #!/bin/bash
 if git submodule status | grep \( > /dev/null ; then 
+    version=$(git describe --tags --match 'v*' --dirty | cut -c2-)
+    echo "Version = $version" > src/Version.properties
     mkdir -p build
     find src -name "*.java" | xargs javac --release 8 -d build
     if [[ "$OSTYPE" == "darwin"* ]]; then
