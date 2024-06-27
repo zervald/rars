@@ -342,24 +342,29 @@ public class MessagesPane extends JPanel {
         return input.getText();
     }
 
+    /** Append a message to a textarea and garbage collect very old text if needed. */
+    private void append(JTextArea area, String string) {
+        area.append(string);
+        // can do some crude cutting here.  If the document gets "very large",
+        // let's cut off the oldest text. This will limit scrolling but the limit
+        // can be set reasonably high.
+        if (area.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
+            try {
+                area.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
+            } catch (BadLocationException ble) {
+                // only if NUMBER_OF_CHARACTERS_TO_CUT > MAXIMUM_SCROLLED_CHARACTERS
+            }
+        }
+        area.setCaretPosition(area.getDocument().getLength());
+    }
+
     /**
      * Post a message to the assembler display
      *
      * @param message String to append to assembler display text
      */
     public void postMessage(String message) {
-        assemble.append(message);
-        // can do some crude cutting here.  If the document gets "very large",
-        // let's cut off the oldest text. This will limit scrolling but the limit
-        // can be set reasonably high.
-        if (assemble.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
-            try {
-                assemble.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
-            } catch (BadLocationException ble) {
-                // only if NUMBER_OF_CHARACTERS_TO_CUT > MAXIMUM_SCROLLED_CHARACTERS
-            }
-        }
-        assemble.setCaretPosition(assemble.getDocument().getLength());
+        append(assemble, message);
         leftPane.setSelectedComponent(assembleTab);
     }
 
@@ -380,17 +385,7 @@ public class MessagesPane extends JPanel {
                 new Runnable() {
                     public void run() {
                         leftPane.setSelectedComponent(runTab);
-                        run.append(mess);
-                        // can do some crude cutting here.  If the document gets "very large",
-                        // let's cut off the oldest text. This will limit scrolling but the limit
-                        // can be set reasonably high.
-                        if (run.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
-                            try {
-                                run.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
-                            } catch (BadLocationException ble) {
-                                // only if NUMBER_OF_CHARACTERS_TO_CUT > MAXIMUM_SCROLLED_CHARACTERS
-                            }
-                        }
+                        append(run, mess);
                     }
                 });
     }
@@ -405,14 +400,7 @@ public class MessagesPane extends JPanel {
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
-                        output.append(mess);
-                        // as in method above: if document gets "very large", cuts off the oldest text.
-                        if (output.getDocument().getLength() > MAXIMUM_SCROLLED_CHARACTERS) {
-                            try {
-                                output.getDocument().remove(0, NUMBER_OF_CHARACTERS_TO_CUT);
-                            } catch (BadLocationException ble) {    // as above
-                            }
-                        }
+                        append(output, mess);
                     }
                 });
     }
