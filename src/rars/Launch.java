@@ -719,15 +719,13 @@ public class Launch {
         out.println("            32-bit address space, CompactDataAtZero for a 32KB memory with");
         out.println("            data segment at address 0, or CompactTextAtZero for a 32KB");
         out.println("            memory with text segment at address 0.");
-        out.println("     me  -- display RARS messages to standard err instead of standard out. ");
-        out.println("            Can separate messages from program output using redirection");
-        out.println("     nc  -- do not display copyright notice (for cleaner redirected/piped output).");
         out.println("     np  -- use of pseudo instructions and formats not permitted");
         out.println("      p  -- Project mode - assemble all files in the same directory as given file.");
         out.println("  se<n>  -- terminate RARS with integer exit code <n> if a simulation (run) error occurs.");
         out.println("     sm  -- start execution at statement with global label main, if defined");
         out.println("    smc  -- Self Modifying Code - Program can write and branch to either text or data segment");
         out.println("    rv64 -- Enables 64 bit assembly and executables (Not fully compatible with rv32)");
+        out.println(" version -- Show version and copyright");
         out.println("    <n>  -- where <n> is an integer maximum count of steps to simulate.");
         out.println("            If 0, negative or not specified, there is no maximum.");
         out.println(" x<reg>  -- where <reg> is number or name (e.g. 5, t3, f10) of register whose ");
