@@ -146,8 +146,8 @@ public class Launch {
         assembleProject = false;
         countInstructions = false;
         instructionCount = 0;
-        assembleErrorExitCode = 0;
-        simulateErrorExitCode = 0;
+        assembleErrorExitCode = 1;
+        simulateErrorExitCode = 2;
         registerDisplayList = new ArrayList<>();
         memoryDisplayList = new ArrayList<>();
         filenameList = new ArrayList<>();
