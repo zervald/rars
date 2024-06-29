@@ -131,6 +131,7 @@ public class Launch {
     private ArrayList<String> programArgumentList; // optional program args for program (becomes argc, argv)
     private int assembleErrorExitCode;  // RARS command exit code to return if assemble error occurs
     private int simulateErrorExitCode;// RARS command exit code to return if simulation error occurs
+    private int maxStepsErrorExitCode;// RARS command exit code to return if max number of instructions is reached
 
     public static void main(String[] args){
         new Launch(args);
@@ -148,6 +149,7 @@ public class Launch {
         instructionCount = 0;
         assembleErrorExitCode = 1;
         simulateErrorExitCode = 2;
+        maxStepsErrorExitCode = 3;
         registerDisplayList = new ArrayList<>();
         memoryDisplayList = new ArrayList<>();
         filenameList = new ArrayList<>();
@@ -512,6 +514,7 @@ public class Launch {
                     Simulator.Reason done = program.simulate();
                     if (done == Simulator.Reason.MAX_STEPS) {
                         out.println("\nProgram terminated when maximum step limit " + options.maxSteps + " reached.");
+                        Globals.exitCode = maxStepsErrorExitCode;
                         break;
                     } else if (done == Simulator.Reason.CLIFF_TERMINATION) {
                         out.println("\nProgram terminated by dropping off the bottom.");
