@@ -254,13 +254,11 @@ public class Launch {
     // Returns true if command args parse OK, false otherwise.
 
     private boolean parseCommandArgs(String[] args) {
-        String noCopyrightSwitch = "nc";
         boolean argsOK = true;
         boolean inProgramArgumentList = false;
         programArgumentList = null;
         if (args.length == 0)
             return true; // should not get here...
-        displayCopyright(args, noCopyrightSwitch);  // ..or not..
         if (args.length == 1 && args[0].equals("h")) {
             displayHelp();
             return false;
@@ -285,8 +283,12 @@ public class Launch {
             if (args[i].toLowerCase().equals("me")) {
                 continue;
             }
-            // no-copyright switch already processed, so ignore.
-            if (args[i].toLowerCase().equals(noCopyrightSwitch)) {
+            // no-copyright switch removed, so ignore.
+            if (args[i].toLowerCase().equals("nc")) {
+                continue;
+            }
+            if (args[i].toLowerCase().equals("version")) {
+                displayVersion();
                 continue;
             }
             if (args[i].toLowerCase().equals("dump")) {
@@ -666,17 +668,11 @@ public class Launch {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    //  Decide whether copyright should be displayed, and display
-    //  if so.
-
-    private void displayCopyright(String[] args, String noCopyrightSwitch) {
-        for (String arg : args) {
-            if (arg.toLowerCase().equals(noCopyrightSwitch)) {
-                return;
-            }
-        }
-        out.println("RARS " + Globals.version + "  Copyright " + Globals.copyrightYears + " " + Globals.copyrightHolders + "\n");
+    /**
+     * Display version and copyright.
+     * */
+    private void displayVersion() {
+        out.println("RARS " + Globals.version + " Copyright " + Globals.copyrightYears + " " + Globals.copyrightHolders + "\n");
     }
 
 
