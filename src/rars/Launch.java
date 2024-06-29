@@ -151,7 +151,7 @@ public class Launch {
         memoryDisplayList = new ArrayList<>();
         filenameList = new ArrayList<>();
         MemoryConfigurations.setCurrentConfiguration(MemoryConfigurations.getDefaultConfiguration());
-        out = System.out;
+        out = System.err;
 
         if (!parseCommandArgs(args)) {
             System.exit(Globals.exitCode);
@@ -255,16 +255,11 @@ public class Launch {
 
     private boolean parseCommandArgs(String[] args) {
         String noCopyrightSwitch = "nc";
-        String displayMessagesToErrSwitch = "me";
         boolean argsOK = true;
         boolean inProgramArgumentList = false;
         programArgumentList = null;
         if (args.length == 0)
             return true; // should not get here...
-        // If the option to display RARS messages to standard erro is used,
-        // it must be processed before any others (since messages may be
-        // generated during option parsing).
-        processDisplayMessagesToErrSwitch(args, displayMessagesToErrSwitch);
         displayCopyright(args, noCopyrightSwitch);  // ..or not..
         if (args.length == 1 && args[0].equals("h")) {
             displayHelp();
@@ -286,8 +281,8 @@ public class Launch {
                 inProgramArgumentList = true;
                 continue;
             }
-            // messages-to-standard-error switch already processed, so ignore.
-            if (args[i].toLowerCase().equals(displayMessagesToErrSwitch)) {
+            // messages-to-standard-error removed, so ignore.
+            if (args[i].toLowerCase().equals("me")) {
                 continue;
             }
             // no-copyright switch already processed, so ignore.
@@ -671,18 +666,6 @@ public class Launch {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    //  If option to display RARS messages to standard err (System.err) is
-    //  present, it must be processed before all others.  Since messages may
-    //  be output as early as during the command parse.
-    private void processDisplayMessagesToErrSwitch(String[] args, String displayMessagesToErrSwitch) {
-        for (String arg : args) {
-            if (arg.toLowerCase().equals(displayMessagesToErrSwitch)) {
-                out = System.err;
-                return;
-            }
-        }
-    }
     ///////////////////////////////////////////////////////////////////////
     //  Decide whether copyright should be displayed, and display
     //  if so.
