@@ -380,11 +380,7 @@ public class MessagesPane extends JPanel {
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
-                        if (isInteractiveMode()) {
-                            leftPane.setSelectedComponent(runTab);
-                        } else {
-                            leftPane.setSelectedComponent(batchTab);
-                        }
+                        selectRunMessageTab();
                         append(run, mess);
                         append(output, mess);
                     }
@@ -418,7 +414,11 @@ public class MessagesPane extends JPanel {
      * Make the runtime message tab current (up front)
      */
     public void selectRunMessageTab() {
-        leftPane.setSelectedComponent(runTab);
+        if (isInteractiveMode()) {
+            leftPane.setSelectedComponent(runTab);
+        } else {
+            leftPane.setSelectedComponent(batchTab);
+        }
     }
 
     /**
