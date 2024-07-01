@@ -2,6 +2,7 @@ package rars.venus;
 
 import rars.ErrorList;
 import rars.Globals;
+import rars.Settings;
 import rars.simulator.Simulator;
 
 import javax.swing.*;
@@ -53,10 +54,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 
 public class MessagesPane extends JPanel {
+    private final Box runButtonBox;
+    private final JRadioButton buttonPopup;
+    private final JRadioButton buttonInteractive;
+    private final JRadioButton buttonBatch;
+    private final JButton inputTabClearButton;
     private JTabbedPane leftPane;
     private JSplitPane batchTab;
     JTextArea assemble, run, input, output;
-    private JPanel assembleTab, runTab, inputTab, outputTab;
+    private JPanel assembleTab, runTab, inputTab, runioTab;
     // These constants are designed to keep scrolled contents of the
     // two message areas from becoming overwhelmingly large (which
     // seems to slow things down as new text is appended).  Once it
@@ -168,65 +174,108 @@ public class MessagesPane extends JPanel {
                     }
                 });
 
-        JButton runTabClearButton = new JButton("Clear");
-        runTabClearButton.setToolTipText("Clear the Run area");
+        JButton runTabClearButton = new JButton("Clear output");
+        runTabClearButton.setToolTipText("Clear the output area");
         runTabClearButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         run.setText("");
+                        output.setText("");
                     }
                 });
-        runTab = new JPanel(new BorderLayout());
-        runTab.add(createBoxForButton(runTabClearButton), BorderLayout.WEST);
-        runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
-
-        JButton inputTabClearButton = new JButton("Clear input");
-        inputTabClearButton.setToolTipText("Clear the input area");
+        inputTabClearButton = new JButton("Clear input");
+        inputTabClearButton.setToolTipText("Clear the input area (batch mode only)");
         inputTabClearButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         input.setText("");
                     }
                 });
-        inputTab = new JPanel(new BorderLayout());
-        inputTab.add(createBoxForButton(inputTabClearButton), BorderLayout.WEST);
+
+        /* Stack of buttons on the left */
+        runButtonBox = Box.createVerticalBox();
+        buttonPopup = new JRadioButton("Popups");
+        buttonInteractive = new JRadioButton("Interactive");
+        buttonBatch = new JRadioButton("Batch");
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(buttonPopup);
+        bg.add(buttonInteractive);
+        bg.add(buttonBatch);
+        ActionListener bl = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               updateIOTab();
+            }
+        };
+        buttonPopup.addActionListener(bl);
+        buttonInteractive.addActionListener(bl);
+        buttonBatch.addActionListener(bl);
+        runButtonBox.add(buttonPopup);
+        runButtonBox.add(buttonInteractive);
+        runButtonBox.add(buttonBatch);
+        runButtonBox.add(runTabClearButton);
+        runButtonBox.add(inputTabClearButton);
+        if (Globals.getSettings().getBooleanSetting(Settings.Bool.BATCH_IOMODE)) {
+            buttonBatch.setSelected(true);
+        } else if (Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
+            buttonPopup.setSelected(true);
+        } else {
+            buttonInteractive.setSelected(true);
+        }
+
+        /* runTab: A single interactive text area */
+        runTab = new JPanel(new BorderLayout());
+        runTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+
+        /* batchTab: A dual text area */
+        JPanel inputTab = new JPanel(new BorderLayout());
         inputTab.add(new JScrollPane(input, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
-
-        JButton outputTabClearButton = new JButton("Clear output");
-        outputTabClearButton.setToolTipText("Clear the Output area");
-        outputTabClearButton.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        output.setText("");
-                    }
-                });
-        outputTab = new JPanel(new BorderLayout());
-        outputTab.add(createBoxForButton(outputTabClearButton), BorderLayout.EAST);
+        JPanel outputTab = new JPanel(new BorderLayout());
         outputTab.add(new JScrollPane(output, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
-
         batchTab = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, inputTab, outputTab);
         batchTab.setOneTouchExpandable(true);
         batchTab.resetToPreferredSizes();
         batchTab.setResizeWeight(0.5);
 
+        /* The runio, the content is dynamic */
+        runioTab = new JPanel(new BorderLayout());
+        updateIOTab();
+
         leftPane.addTab("Messages", assembleTab);
-        leftPane.addTab("Interactive", runTab);
-        leftPane.addTab("Batch", batchTab);
+        leftPane.addTab("Run I/O", runioTab);
         leftPane.setForeground(Color.BLACK);
 
         leftPane.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
         leftPane.setToolTipTextAt(1, "Simulated console input (used while running) and other run messages");
-        leftPane.setToolTipTextAt(2, "Simulated console input (to use before running)");
 
         this.setLayout(new BorderLayout());
         this.add(leftPane);
     }
 
+    /** Update the content of the runio tab according to the selected radio buttons. */
+    private void updateIOTab() {
+        runioTab.removeAll();
+        runioTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        if (buttonBatch.isSelected() ) {
+            Globals.getSettings().setBooleanSetting(Settings.Bool.BATCH_IOMODE, true);
+            Globals.getSettings().setBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT, false);
+            runioTab.add(batchTab);
+            inputTabClearButton.setEnabled(true);
+        } else {
+            Globals.getSettings().setBooleanSetting(Settings.Bool.BATCH_IOMODE, false);
+            runioTab.add(runTab);
+            Globals.getSettings().setBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT, buttonPopup.isSelected());
+            inputTabClearButton.setEnabled(false);
+        }
+        this.repaint();
+    }
+
     // Center given button in a box, centered vertically and 6 pixels on left and right
-    private Box createBoxForButton(JButton button) {
+    private Box createBoxForButton(Component button) {
         Box buttonRow = Box.createHorizontalBox();
         buttonRow.add(Box.createHorizontalStrut(6));
         buttonRow.add(button);
@@ -326,7 +375,7 @@ public class MessagesPane extends JPanel {
      * Currently, batch mode means that the input field is not empty.
      */
     public Boolean isInteractiveMode() {
-        return input.getText().isEmpty();
+        return ! Globals.getSettings().getBooleanSetting(Settings.Bool.BATCH_IOMODE);
     }
 
     /**
@@ -414,11 +463,7 @@ public class MessagesPane extends JPanel {
      * Make the runtime message tab current (up front)
      */
     public void selectRunMessageTab() {
-        if (isInteractiveMode()) {
-            leftPane.setSelectedComponent(runTab);
-        } else {
-            leftPane.setSelectedComponent(batchTab);
-        }
+        leftPane.setSelectedComponent(runioTab);
     }
 
     /**
