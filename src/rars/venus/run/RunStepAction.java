@@ -86,6 +86,8 @@ public class RunStepAction extends GuiAction {
                         }
                     };
             Simulator.getInstance().addObserver(stopListener);
+            executePane.getRegistersWindow().clearHighlighting();   //clears highlight of previous step
+            executePane.getDataSegmentWindow().clearHighlighting();
 
             Globals.program.startSimulation(1, null);
         } else {
@@ -108,6 +110,7 @@ public class RunStepAction extends GuiAction {
         if (done) {
             RunGoAction.resetMaxSteps();
             executePane.getTextSegmentWindow().unhighlightAllSteps();
+            executePane.getTextSegmentWindow().setCodeHighlighting(false);
             FileStatus.set(FileStatus.TERMINATED);
         }
         if (done && pe == null) {

@@ -83,6 +83,9 @@ public class RunGoAction extends GuiAction {
                 mainUI.getMessagesPane().selectRunMessageTab();
                 executePane.getTextSegmentWindow().setCodeHighlighting(false);
                 executePane.getTextSegmentWindow().unhighlightAllSteps();
+                //clears highlight of registers and data segment if the run step was used before
+                executePane.getRegistersWindow().clearHighlighting();
+                executePane.getDataSegmentWindow().clearHighlighting();
                 //FileStatus.set(FileStatus.RUNNING);
                 mainUI.setMenuState(FileStatus.RUNNING);
 
