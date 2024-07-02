@@ -161,9 +161,9 @@ public class RunGoAction extends GuiAction {
         executePane.getDataSegmentWindow().updateValues();
         FileStatus.set(FileStatus.TERMINATED);
         SystemIO.resetFiles(); // close any files opened in MIPS program
-        // Bring CSRs to the front if terminated due to exception.
         if (pe != null) {
-            mainUI.getRegistersPane().setSelectedComponent(executePane.getControlAndStatusWindow());
+            // Do not bring CSRs to the front if terminated due to exception.
+            // It's annoying, and confusing for the beginners
             executePane.getTextSegmentWindow().setCodeHighlighting(true);
             executePane.getTextSegmentWindow().unhighlightAllSteps();
             executePane.getTextSegmentWindow().highlightStepAtAddress(RegisterFile.getProgramCounter() - 4);
