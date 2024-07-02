@@ -92,6 +92,16 @@ public class RegisterBlock {
     }
 
     /**
+     * Returns the value of the register. Observers are not notified.
+     *
+     * @param num The register's number.
+     * @return value The value of the given register.
+     */
+    public long getValueNoNotify(int num) {
+        return getRegister(num).getValueNoNotify();
+    }
+
+    /**
      * Returns the value of the register.
      *
      * @param name The register's name.

@@ -413,7 +413,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
             desiredComboBoxIndex = EXTERN_BASE_ADDRESS_INDEX;
         }
         // Check distance from global pointer; can be either side of it...
-        thisDistance = Math.abs(address - RegisterFile.getValue(RegisterFile.GLOBAL_POINTER_REGISTER)); // distance from global pointer
+        thisDistance = Math.abs(address - RegisterFile.getValueNoNotify(RegisterFile.GLOBAL_POINTER_REGISTER)); // distance from global pointer
         if (thisDistance < shortDistance) {
             shortDistance = thisDistance;
             desiredComboBoxIndex = GLOBAL_POINTER_ADDRESS_INDEX;
@@ -431,7 +431,7 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
             desiredComboBoxIndex = HEAP_BASE_ADDRESS_INDEX;
         }
         // Check distance from stack pointer.  Can be on either side of it...
-        thisDistance = Math.abs(address - RegisterFile.getValue(RegisterFile.STACK_POINTER_REGISTER));
+        thisDistance = Math.abs(address - RegisterFile.getValueNoNotify(RegisterFile.STACK_POINTER_REGISTER));
         if (thisDistance < shortDistance) {
             shortDistance = thisDistance;
             desiredComboBoxIndex = STACK_POINTER_BASE_ADDRESS_INDEX;
