@@ -59,6 +59,7 @@ public class MessagesPane extends JPanel {
     private final JRadioButton buttonInteractive;
     private final JRadioButton buttonBatch;
     private final JButton inputTabClearButton;
+    private final Box runioContent;
     private JTabbedPane leftPane;
     private JSplitPane batchTab;
     JTextArea assemble, run, input, output;
@@ -242,7 +243,10 @@ public class MessagesPane extends JPanel {
         batchTab.setResizeWeight(0.5);
 
         /* The runio, the content is dynamic */
+        runioContent = Box.createHorizontalBox();
         runioTab = new JPanel(new BorderLayout());
+        runioTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        runioTab.add(runioContent);
         updateIOTab();
 
         leftPane.addTab("Messages", assembleTab);
@@ -258,16 +262,15 @@ public class MessagesPane extends JPanel {
 
     /** Update the content of the runio tab according to the selected radio buttons. */
     private void updateIOTab() {
-        runioTab.removeAll();
-        runioTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        runioContent.removeAll();
         if (buttonBatch.isSelected() ) {
             Globals.getSettings().setBooleanSetting(Settings.Bool.BATCH_IOMODE, true);
             Globals.getSettings().setBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT, false);
-            runioTab.add(batchTab);
+            runioContent.add(batchTab);
             inputTabClearButton.setEnabled(true);
         } else {
             Globals.getSettings().setBooleanSetting(Settings.Bool.BATCH_IOMODE, false);
-            runioTab.add(runTab);
+            runioContent.add(runTab);
             Globals.getSettings().setBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT, buttonPopup.isSelected());
             inputTabClearButton.setEnabled(false);
         }
