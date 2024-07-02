@@ -126,6 +126,7 @@ public class RunStepAction extends GuiAction {
                     pe.error().generateReport());
             mainUI.getMessagesPane().postMessage(
                     "\n" + name + ": execution terminated with errors.\n\n");
+            mainUI.getMessagesPane().postRunMessage("\n"+pe.error().getMessage());
             FileStatus.set(FileStatus.TERMINATED); // should be redundant.
             executePane.getTextSegmentWindow().setCodeHighlighting(true);
             executePane.getTextSegmentWindow().unhighlightAllSteps();

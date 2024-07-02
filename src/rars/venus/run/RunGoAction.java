@@ -188,6 +188,7 @@ public class RunGoAction extends GuiAction {
                         pe.error().generateReport());
                 mainUI.getMessagesPane().postMessage(
                         "\n" + name + ": execution terminated with errors.\n\n");
+                mainUI.getMessagesPane().postRunMessage("\n"+pe.error().getMessage());
                 break;
             case STOP:
                 mainUI.getMessagesPane().postMessage(
