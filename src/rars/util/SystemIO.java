@@ -182,9 +182,10 @@ public class SystemIO {
 
     /**
      * Implements syscall having 12 in $v0, to read a char value.
+     * Only printable characters are accepted (9, 10, and 32 to 126).
      *
      * @param serviceNumber the number assigned to Read Char syscall (default 12)
-     * @return int value with lowest byte corresponding to user input or -1 on EOF
+     * @return int value with lowest byte corresponding to user input, -1 on EOF, or -2 on invalid ASCII character.
      */
     public static int readChar(int serviceNumber) {
         int returnValue;
@@ -204,6 +205,10 @@ public class SystemIO {
                 returnValue = input[0] & 0xFF;
             else
                 returnValue = -1;
+        }
+
+        if ((returnValue < 32 || returnValue >= 127) && returnValue != -1 && returnValue != '\n' && returnValue != '\t') {
+            return -2;
         }
 
         return returnValue;
