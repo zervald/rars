@@ -19,6 +19,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -393,6 +394,51 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
                             return columnToolTips[realIndex];
                         }
                     };
+        }
+    }
+
+    //////////////////////////////////////////////////////////////
+    //
+    // Contains the access notice linked to each register.
+    // Each register is represented by the row in which it appears in the register window
+    //
+    private class RegistersAccessNotice {
+        private int[] accessNoticeTypes;
+
+        //Constructor which sets all access notices to none
+        public RegistersAccessNotice() {
+            accessNoticeTypes = new int[32];
+            Arrays.fill(accessNoticeTypes, -1);
+        }
+
+        //Adds an access notice linked to a register. Overwrites with a "write" type if there is a reading
+        //and a writing access notice for the same register, and that both highlighting are enabled
+        public void add(int row, int type) {
+            if (0 <= row && row < accessNoticeTypes.length)
+                if (accessNoticeTypes[row] == -1 ||
+                        (accessNoticeTypes[row] == AccessNotice.READ && settings.getBooleanSetting(Settings.Bool.EXPLICIT_WRITE_HIGHLIGHTING)))
+                    accessNoticeTypes[row] = type;
+        }
+
+        //Clears all register access notice
+        public void clear() {
+            Arrays.fill(accessNoticeTypes, -1);
+        }
+
+        //Returns the access notice type of a register
+        public int getAccessNoticeType(int row) {
+            if (0 <= row && row < accessNoticeTypes.length)
+                return accessNoticeTypes[row];
+            else
+                return -1;
+        }
+
+        // Returns true iff there is an access notice for a certain register
+        public boolean contains(int row) {
+            if (0 <= row && row < accessNoticeTypes.length) {
+                return accessNoticeTypes[row] != -1;
+            } else
+                return false;
         }
     }
 }
