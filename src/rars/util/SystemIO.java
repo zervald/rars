@@ -301,10 +301,10 @@ public class SystemIO {
             //takes input from input pane
             } else {
                 try {
-                    String input = "";
-                    for (int i = 0; i < myBuffer.length; i++) {
-                        input = input + (char) getInputReaderFromGui().read();
-                    }
+                    char[] chars = new char[lengthRequested];
+                    int len = getInputReaderFromGui().read(chars);
+                    if (len <= 0) return len;
+                    String input = new String(chars);
                     return readInBuffer(input, myBuffer);
                 } catch (IOException e) {
                     fileErrorString = "IO Exception on read from the input window of GUI";
