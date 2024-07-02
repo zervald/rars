@@ -60,7 +60,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 public abstract class RegisterBlockWindow extends JPanel implements Observer {
     private JTable table;
     private boolean highlighting;
-    private int highlightRow;
+    private RegistersAccessNotice stepAccessNotices;    //contains the register access notices for the current step
     private Register[] registers;
 
     private static final int NAME_COLUMN = 0;
@@ -74,6 +74,7 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
      * Constructor which sets up a fresh window with a table that contains the register values.
      **/
     public RegisterBlockWindow(Register[] registers, String[] registerDescriptions, String valueTip) {
+        stepAccessNotices = new RegistersAccessNotice();
         Simulator.getInstance().addObserver(this);
         settings = Globals.getSettings();
         settings.addObserver(this);
@@ -136,7 +137,7 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
         if (table != null) {
             table.tableChanged(new TableModelEvent(table.getModel()));
         }
-        highlightRow = -1; // assure highlight will not occur upon re-assemble.
+        stepAccessNotices.clear();
     }
 
     /**
@@ -163,14 +164,42 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
      * @param register Register object corresponding to row to be selected.
      */
     private void highlightCellForRegister(Register register) {
-        for (int i = 0; i < registers.length; i++) {
+        /*for (int i = 0; i < registers.length; i++) {
             if (registers[i] == register) {
                 this.highlightRow = i;
                 table.tableChanged(new TableModelEvent(table.getModel()));
                 return;
             }
         }
-        this.highlightRow = -1;
+        this.highlightRow = -1;*/
+    }
+
+    /**
+     * Adds the given register to the registers to highlight and updates highlighting
+     * for the current step
+     *
+     * @param register Register object corresponding to row to be selected.
+     * @param accessType the type of access: Write is 0, Read is 1 as in the AccessNotice
+     */
+    private void addRegisterHighlighting(Register register, int accessType) {
+        stepAccessNotices.add(getRow(register), accessType);
+        table.tableChanged(new TableModelEvent(table.getModel()));
+    }
+
+    /**
+     * Finds the row that contains the given register
+     *
+     * @param register Register object corresponding to a certain row
+     * @return  Index of row that contains the given register,
+     *          or -1 if register not found
+     */
+    private int getRow(Register register) {
+        for (int i = 0; i < registers.length; i++) {
+            if (registers[i] == register) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -203,19 +232,18 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
         } else if (obj instanceof RegisterAccessNotice) {
             // NOTE: each register is a separate Observable
             RegisterAccessNotice access = (RegisterAccessNotice) obj;
-            if (access.getAccessType() == AccessNotice.WRITE) {
                 // Uses the same highlighting technique as for Text Segment -- see
                 // AddressCellRenderer class in DataSegmentWindow.java.
-                this.highlighting = true;
-                this.highlightCellForRegister((Register) observable);
-                Globals.getGui().getRegistersPane().setSelectedComponent(this);
-            }
+            this.highlighting = true;
+            addRegisterHighlighting((Register) observable, access.getAccessType());
+            Globals.getGui().getRegistersPane().setSelectedComponent(this);
         }
     }
 
     private void updateRowHeight() {
         Font possibleFonts[] = {
-            settings.getFontByPosition(Settings.REGISTER_HIGHLIGHT_FONT),
+            settings.getFontByPosition(Settings.EXPLICIT_WRITE_HIGHLIGHT_FONT),
+                settings.getFontByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FONT),
             settings.getFontByPosition(Settings.EVEN_ROW_FONT),
             settings.getFontByPosition(Settings.ODD_ROW_FONT),
         };
@@ -251,10 +279,14 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
                     isSelected, hasFocus, row, column);
             cell.setFont(font);
             cell.setHorizontalAlignment(alignment);
-            if (settings.getBooleanSetting(Settings.Bool.REGISTERS_HIGHLIGHTING) && highlighting && row == highlightRow) {
-                cell.setBackground(settings.getColorSettingByPosition(Settings.REGISTER_HIGHLIGHT_BACKGROUND));
-                cell.setForeground(settings.getColorSettingByPosition(Settings.REGISTER_HIGHLIGHT_FOREGROUND));
-                cell.setFont(settings.getFontByPosition(Settings.REGISTER_HIGHLIGHT_FONT));
+            if (highlighting && stepAccessNotices.contains(row) && settings.getBooleanSetting(Settings.Bool.EXPLICIT_WRITE_HIGHLIGHTING) && stepAccessNotices.getAccessNoticeType(row) == AccessNotice.WRITE) {
+                    cell.setBackground(settings.getColorSettingByPosition(Settings.EXPLICIT_WRITE_HIGHLIGHT_BACKGROUND));
+                    cell.setForeground(settings.getColorSettingByPosition(Settings.EXPLICIT_WRITE_HIGHLIGHT_FOREGROUND));
+                    cell.setFont(settings.getFontByPosition(Settings.EXPLICIT_WRITE_HIGHLIGHT_FONT));
+            } else if (highlighting && stepAccessNotices.contains(row) && settings.getBooleanSetting(Settings.Bool.EXPLICIT_READ_HIGHLIGHTING) && stepAccessNotices.getAccessNoticeType(row) == AccessNotice.READ) {
+                    cell.setBackground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_BACKGROUND));
+                    cell.setForeground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FOREGROUND));
+                    cell.setFont(settings.getFontByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FONT));
             } else if (row % 2 == 0) {
                 cell.setBackground(settings.getColorSettingByPosition(Settings.EVEN_ROW_BACKGROUND));
                 cell.setForeground(settings.getColorSettingByPosition(Settings.EVEN_ROW_FOREGROUND));
