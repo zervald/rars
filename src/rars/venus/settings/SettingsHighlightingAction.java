@@ -87,9 +87,9 @@ public class SettingsHighlightingAction extends GuiAction {
     Color[] currentNondefaultBackground, currentNondefaultForeground;
     Color[] initialSettingsBackground, initialSettingsForeground;
     Font[] initialFont, currentFont, currentNondefaultFont;
-    JButton dataHighlightButton, registerHighlightButton;
-    boolean currentDataHighlightSetting, initialDataHighlightSetting;
-    boolean currentRegisterHighlightSetting, initialRegisterHighlightSetting;
+    JButton explicitWriteHighlightButton, explicitReadHighlightButton;
+    boolean currentExplicitWriteHighlightSetting, initialExplicitWriteHighlightSetting;
+    boolean currentExplicitReadHighlightSetting, initialExplicitReadHighlightSetting;
 
     private static final int gridVGap = 2;
     private static final int gridHGap = 2;
@@ -105,8 +105,8 @@ public class SettingsHighlightingAction extends GuiAction {
     public static final String RESET_TOOL_TIP_TEXT = "Reset to initial settings without applying";
     public static final String CANCEL_TOOL_TIP_TEXT = "Close dialog without applying current settings";
     // Tool tips for the data and register highlighting enable/disable controls
-    private static final String DATA_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT = "Click, to enable or disable highlighting in Data Segment window";
-    private static final String REGISTER_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT = "Click, to enable or disable highlighting in Register windows";
+    private static final String EXPLICIT_WRITE_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT = "Click, to enable or disable explicit writing highlighting";
+    private static final String EXPLICIT_READ_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT = "Click, to enable or disable explicit reading highlighting";
     private static final String fontButtonText = "font";
 
     /**
@@ -185,8 +185,8 @@ public class SettingsHighlightingAction extends GuiAction {
         // Note the labels have to match buttons by position...
         descriptions.add(new JLabel("Text Segment highlighting", SwingConstants.RIGHT));
         descriptions.add(new JLabel("Text Segment Delay Slot highlighting", SwingConstants.RIGHT));
-        descriptions.add(new JLabel("Data Segment highlighting *", SwingConstants.RIGHT));
-        descriptions.add(new JLabel("Register highlighting *", SwingConstants.RIGHT));
+        descriptions.add(new JLabel("Explicit writing highlighting *", SwingConstants.RIGHT));
+        descriptions.add(new JLabel("Explicit reading highlighting *", SwingConstants.RIGHT));
         descriptions.add(new JLabel("Even row normal", SwingConstants.RIGHT));
         descriptions.add(new JLabel("Odd row normal", SwingConstants.RIGHT));
 
@@ -225,36 +225,36 @@ public class SettingsHighlightingAction extends GuiAction {
         contents.add(instructions, BorderLayout.NORTH);
 
         // Control highlighting enable/disable for Data Segment window and Register windows
-        JPanel dataRegisterHighlightControl = new JPanel(new GridLayout(2, 1));
-        dataHighlightButton = new JButton();
-        dataHighlightButton.setText(getHighlightControlText(currentDataHighlightSetting));
-        dataHighlightButton.setToolTipText(DATA_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT);
-        dataHighlightButton.addActionListener(
+        JPanel explicitReadWriteHighlightControl = new JPanel(new GridLayout(2, 1));
+        explicitWriteHighlightButton = new JButton();
+        explicitWriteHighlightButton.setText(getHighlightControlText(currentExplicitWriteHighlightSetting));
+        explicitWriteHighlightButton.setToolTipText(EXPLICIT_WRITE_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT);
+        explicitWriteHighlightButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        currentDataHighlightSetting = !currentDataHighlightSetting;
-                        dataHighlightButton.setText(getHighlightControlText(currentDataHighlightSetting));
+                        currentExplicitWriteHighlightSetting = !currentExplicitWriteHighlightSetting;
+                        explicitWriteHighlightButton.setText(getHighlightControlText(currentExplicitWriteHighlightSetting));
                     }
                 });
-        registerHighlightButton = new JButton();
-        registerHighlightButton.setText(getHighlightControlText(currentRegisterHighlightSetting));
-        registerHighlightButton.setToolTipText(REGISTER_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT);
-        registerHighlightButton.addActionListener(
+        explicitReadHighlightButton = new JButton();
+        explicitReadHighlightButton.setText(getHighlightControlText(currentExplicitReadHighlightSetting));
+        explicitReadHighlightButton.setToolTipText(EXPLICIT_READ_HIGHLIGHT_ENABLE_TOOL_TIP_TEXT);
+        explicitReadHighlightButton.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        currentRegisterHighlightSetting = !currentRegisterHighlightSetting;
-                        registerHighlightButton.setText(getHighlightControlText(currentRegisterHighlightSetting));
+                        currentExplicitReadHighlightSetting = !currentExplicitReadHighlightSetting;
+                        explicitReadHighlightButton.setText(getHighlightControlText(currentExplicitReadHighlightSetting));
                     }
                 });
-        JPanel dataHighlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JPanel registerHighlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        dataHighlightPanel.add(new JLabel("* Data Segment highlighting is"));
-        dataHighlightPanel.add(dataHighlightButton);
-        registerHighlightPanel.add(new JLabel("* Register highlighting is"));
-        registerHighlightPanel.add(registerHighlightButton);
-        dataRegisterHighlightControl.setBorder(new LineBorder(Color.BLACK));
-        dataRegisterHighlightControl.add(dataHighlightPanel);
-        dataRegisterHighlightControl.add(registerHighlightPanel);
+        JPanel explicitWriteHighlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel explicitReadHighlightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        explicitWriteHighlightPanel.add(new JLabel("* Explicit writing highlighting is"));
+        explicitReadHighlightPanel.add(new JLabel("* Explicit reading highlighting is"));
+        explicitWriteHighlightPanel.add(explicitWriteHighlightButton);
+        explicitReadHighlightPanel.add(explicitReadHighlightButton);
+        explicitReadWriteHighlightControl.setBorder(new LineBorder(Color.BLACK));
+        explicitReadWriteHighlightControl.add(explicitWriteHighlightPanel);
+        explicitReadWriteHighlightControl.add(explicitReadHighlightPanel);
 
         // Bottom row - the control buttons for Apply&Close, Apply, Cancel
         Box controlPanel = Box.createHorizontalBox();
@@ -302,7 +302,7 @@ public class SettingsHighlightingAction extends GuiAction {
         controlPanel.add(Box.createHorizontalGlue());
 
         JPanel allControls = new JPanel(new GridLayout(2, 1));
-        allControls.add(dataRegisterHighlightControl);
+        allControls.add(explicitReadWriteHighlightControl);
         allControls.add(controlPanel);
         contents.add(allControls, BorderLayout.SOUTH);
         return contents;
@@ -346,8 +346,8 @@ public class SettingsHighlightingAction extends GuiAction {
             foregroundButtons[i].setEnabled(!usingDefaults);
             fontButtons[i].setEnabled(!usingDefaults);
         }
-        currentDataHighlightSetting = initialDataHighlightSetting = settings.getBooleanSetting(Settings.Bool.DATA_SEGMENT_HIGHLIGHTING);
-        currentRegisterHighlightSetting = initialRegisterHighlightSetting = settings.getBooleanSetting(Settings.Bool.REGISTERS_HIGHLIGHTING);
+        currentExplicitWriteHighlightSetting = initialExplicitWriteHighlightSetting = settings.getBooleanSetting(Settings.Bool.EXPLICIT_WRITE_HIGHLIGHTING);
+        currentExplicitReadHighlightSetting = initialExplicitReadHighlightSetting = settings.getBooleanSetting(Settings.Bool.EXPLICIT_READ_HIGHLIGHTING);
     }
 
 
@@ -359,8 +359,8 @@ public class SettingsHighlightingAction extends GuiAction {
             settings.setColorSettingByPosition(foregroundSettingPositions[i], foregroundButtons[i].getBackground());
             settings.setFontByPosition(fontSettingPositions[i], samples[i].getFont());//fontButtons[i].getFont());			
         }
-        settings.setBooleanSetting(Settings.Bool.DATA_SEGMENT_HIGHLIGHTING, currentDataHighlightSetting);
-        settings.setBooleanSetting(Settings.Bool.REGISTERS_HIGHLIGHTING, currentRegisterHighlightSetting);
+        settings.setBooleanSetting(Settings.Bool.EXPLICIT_WRITE_HIGHLIGHTING, currentExplicitWriteHighlightSetting);
+        settings.setBooleanSetting(Settings.Bool.EXPLICIT_READ_HIGHLIGHTING, currentExplicitReadHighlightSetting);
         ExecutePane executePane = Globals.getGui().getMainPane().getExecutePane();
         executePane.getRegistersWindow().refresh();
         executePane.getControlAndStatusWindow().refresh();
@@ -379,8 +379,8 @@ public class SettingsHighlightingAction extends GuiAction {
     // Called when Reset selected.
     private void resetButtonColors() {
         Settings settings = Globals.getSettings();
-        dataHighlightButton.setText(getHighlightControlText(initialDataHighlightSetting));
-        registerHighlightButton.setText(getHighlightControlText(initialRegisterHighlightSetting));
+        explicitWriteHighlightButton.setText(getHighlightControlText(initialExplicitWriteHighlightSetting));
+        explicitReadHighlightButton.setText(getHighlightControlText(initialExplicitReadHighlightSetting));
         Color backgroundSetting, foregroundSetting;
         Font fontSetting;
         for (int i = 0; i < backgroundSettingPositions.length; i++) {
