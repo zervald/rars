@@ -295,7 +295,7 @@ public class SystemIO {
         /// Read from STDIN file descriptor while using IDE - get input from Messages pane.
         if (fd == STDIN && Globals.getGui() != null) {
             //asks user for input in run pane
-            if (Globals.getGui().getMessagesPane().getInputField().isEmpty()) {
+            if (Globals.getGui().getMessagesPane().isInteractiveMode()) {
                 String input = Globals.getGui().getMessagesPane().getInputString(lengthRequested);
                 return readInBuffer(input, myBuffer);
             //takes input from input pane
