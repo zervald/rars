@@ -103,7 +103,7 @@ public class RunResetAction extends GuiAction {
         // Aug. 24, 2005 Ken Vollmar
         SystemIO.resetFiles();  // Ensure that I/O "file descriptors" are initialized for a new program run
 
-        mainUI.getMessagesPane().postRunMessage(
+        mainUI.getMessagesPane().postMessage(
                 "\n" + name + ": reset completed.\n\n");
     }
 }
