@@ -52,10 +52,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @author Sanderson and Team JSpim
  **/
 
-	  /* Heavily modified by Pete Sanderson, July 2004, to incorporate JSPIMMenu and JSPIMToolbar
-       * not as subclasses of JMenuBar and JToolBar, but as instances of them.  They are both
-		* here primarily so both can share the Action objects.
-		*/
+/* Heavily modified by Pete Sanderson, July 2004, to incorporate JSPIMMenu and JSPIMToolbar
+ * not as subclasses of JMenuBar and JToolBar, but as instances of them.  They are both
+ * here primarily so both can share the Action objects.
+ */
 
 public class VenusUI extends JFrame {
     VenusUI mainUI;
@@ -126,9 +126,9 @@ public class VenusUI extends JFrame {
         mainUI = this;
         Globals.setGui(this);
         this.editor = new Editor(this);
-
-        double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-        double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+        Rectangle maximumWindowBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        double screenWidth = maximumWindowBounds.getWidth();
+        double screenHeight = maximumWindowBounds.getHeight();
         // basically give up some screen space if running at 800 x 600
         double messageWidthPct = (screenWidth < 1000.0) ? 0.67 : 0.73;
         double messageHeightPct = (screenWidth < 1000.0) ? 0.12 : 0.15;
