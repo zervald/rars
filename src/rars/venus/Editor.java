@@ -149,11 +149,11 @@ public class Editor {
     /**
      * Generates a default file name
      *
-     * @return returns string mipsN.asm, where N is 1,2,3,...
+     * @return returns string mipsN.s, where N is 1,2,3,...
      */
     public String getNextDefaultFilename() {
         newUsageCount++;
-        return "riscv" + newUsageCount + ".asm";
+        return "riscv" + newUsageCount + ".s";
     }
 
 
