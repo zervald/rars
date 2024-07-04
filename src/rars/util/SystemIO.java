@@ -76,6 +76,12 @@ public class SystemIO {
     private static final int STDOUT = 1;
     private static final int STDERR = 2;
 
+    // special result of readChar
+    /** End of stream reached */
+    public static final int EOF = -1;
+    /** the character is not a printable ASCII  */
+    public static final int NOTASCII = -2;
+
     /**
      * Implements syscall to read an integer value.
      * Client is responsible for catching NumberFormatException.
@@ -185,7 +191,7 @@ public class SystemIO {
      * Only printable characters are accepted (9, 10, and 32 to 126).
      *
      * @param serviceNumber the number assigned to Read Char syscall (default 12)
-     * @return int value with lowest byte corresponding to user input, -1 on EOF, or -2 on invalid ASCII character.
+     * @return int value with lowest byte corresponding to user input, EOF on end of data, or NOTASCII on invalid ASCII character.
      */
     public static int readChar(int serviceNumber) {
         int returnValue;
@@ -196,7 +202,7 @@ public class SystemIO {
             if (input.length()>0)
                 returnValue = input.getBytes(StandardCharsets.UTF_8) [0] & 0xFF; // truncate
             else
-                returnValue = -1; // assume EOF on empty string
+                returnValue = EOF; // assume EOF on empty string
         } else {
             // Otherwise delegate to the Read syscall
             byte[] input = new byte[1];
@@ -204,11 +210,11 @@ public class SystemIO {
             if (len>0)
                 returnValue = input[0] & 0xFF;
             else
-                returnValue = -1;
+                returnValue = EOF;
         }
 
         if ((returnValue < 32 || returnValue >= 127) && returnValue != -1 && returnValue != '\n' && returnValue != '\t') {
-            return -2;
+            return NOTASCII;
         }
 
         return returnValue;

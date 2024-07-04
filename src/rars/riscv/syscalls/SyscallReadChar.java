@@ -41,9 +41,9 @@ public class SyscallReadChar extends AbstractSyscall {
 
     public void simulate(ProgramStatement statement) throws ExitingException {
         int character = SystemIO.readChar(this.getNumber());
-        if (character == -2) {
+        if (character == SystemIO.NOTASCII) {
             throw new ExitingException(statement,
-                    "invalid char input (syscall " + this.getNumber() + ")");
+                    "invalid or non printable ASCII input (syscall " + this.getNumber() + ")");
         }
         RegisterFile.updateRegister("a0", character);
     }
