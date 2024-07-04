@@ -1051,9 +1051,9 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                 cell.setFont(settings.getFontByPosition(Settings.EXPLICIT_WRITE_HIGHLIGHT_FONT));
             } else if (settings.getBooleanSetting(Settings.Bool.EXPLICIT_READ_HIGHLIGHTING) && addressHighlighting &&
                     rowFirstAddress == addressRowFirstAddress && column == addressColumn && !writingHighlight) { //not writing highlight means reading highlight
-                    cell.setBackground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_BACKGROUND));
-                    cell.setForeground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FOREGROUND));
-                    cell.setFont(settings.getFontByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FONT));
+                cell.setBackground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_BACKGROUND));
+                cell.setForeground(settings.getColorSettingByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FOREGROUND));
+                cell.setFont(settings.getFontByPosition(Settings.EXPLICIT_READ_HIGHLIGHT_FONT));
             } else if (row % 2 == 0) {
                 cell.setBackground(settings.getColorSettingByPosition(Settings.EVEN_ROW_BACKGROUND));
                 cell.setForeground(settings.getColorSettingByPosition(Settings.EVEN_ROW_FOREGROUND));

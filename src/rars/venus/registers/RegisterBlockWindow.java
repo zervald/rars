@@ -159,22 +159,6 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
     }
 
     /**
-     * Highlight the row corresponding to the given register.
-     *
-     * @param register Register object corresponding to row to be selected.
-     */
-    private void highlightCellForRegister(Register register) {
-        /*for (int i = 0; i < registers.length; i++) {
-            if (registers[i] == register) {
-                this.highlightRow = i;
-                table.tableChanged(new TableModelEvent(table.getModel()));
-                return;
-            }
-        }
-        this.highlightRow = -1;*/
-    }
-
-    /**
      * Adds the given register to the registers to highlight and updates highlighting
      * for the current step
      *
