@@ -83,13 +83,12 @@ public class RunResetAction extends GuiAction {
         FloatingPointRegisterFile.resetRegisters();
         ControlAndStatusRegisterFile.resetRegisters();
         InterruptController.reset();
-
-        executePane.getRegistersWindow().clearHighlighting();
         executePane.getRegistersWindow().updateRegisters();
-        executePane.getFloatingPointWindow().clearHighlighting();
+        executePane.getRegistersWindow().clearHighlighting();
         executePane.getFloatingPointWindow().updateRegisters();
-        executePane.getControlAndStatusWindow().clearHighlighting();
+        executePane.getFloatingPointWindow().clearHighlighting();
         executePane.getControlAndStatusWindow().updateRegisters();
+        executePane.getControlAndStatusWindow().clearHighlighting();
         executePane.getDataSegmentWindow().highlightCellForAddress(Memory.dataBaseAddress);
         executePane.getDataSegmentWindow().clearHighlighting();
         executePane.getTextSegmentWindow().resetModifiedSourceCode();

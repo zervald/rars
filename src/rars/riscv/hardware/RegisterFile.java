@@ -111,6 +111,17 @@ public class RegisterFile {
     }
 
     /**
+     * Returns the value of the register. Observers are not notified.
+     *
+     * @param num The register's number.
+     * @return value The value of the given register.
+     */
+    public static int getValueNoNotify(int num) {
+        return (int) instance.getValueNoNotify(num);
+
+    }
+
+    /**
      * Returns the value of the register.
      *
      * @param num The register number.
