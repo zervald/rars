@@ -50,9 +50,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 
 public class TextSegmentWindow extends JInternalFrame implements Observer {
-    private JPanel programArgumentsPanel;  // DPS 17-July-2008
-    private JTextField programArgumentsTextField; // DPS 17-July-2008
-    private static final int PROGRAM_ARGUMENT_TEXTFIELD_COLUMNS = 40;
     private JTable table;
     private JScrollPane tableScroller;
     private Object[][] data;
@@ -96,11 +93,6 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
         contentPane = this.getContentPane();
         codeHighlighting = true;
         breakpointsEnabled = true;
-        programArgumentsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        programArgumentsPanel.add(new JLabel("Program Arguments: "));
-        programArgumentsTextField = new JTextField(PROGRAM_ARGUMENT_TEXTFIELD_COLUMNS);
-        programArgumentsTextField.setToolTipText("Arguments provided to program at runtime via a0 (argc) and a1 (argv)");
-        programArgumentsPanel.add(programArgumentsTextField);
     }
 
 
@@ -177,9 +169,6 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
         tableScroller = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         contentPane.add(tableScroller);
-        if (Globals.getSettings().getBooleanSetting(Settings.Bool.PROGRAM_ARGUMENTS)) {
-            addProgramArgumentsPanel();
-        }
 
         setColumnMaxWidth(table.getColumnModel().getColumn(BREAK_COLUMN), columnNames[0]);
         setColumnMaxWidth(table.getColumnModel().getColumn(ADDRESS_COLUMN), "0x00000000");
@@ -203,33 +192,6 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
         column.setMaxWidth(width);
         column.setPreferredWidth(width);
     }
-    ////////////  Support for program arguments added DPS 17-July-2008 //////////////
-
-    /**
-     * Get program arguments from text field in south border of text segment window.
-     *
-     * @return String containing program arguments
-     */
-    public String getProgramArguments() {
-        return programArgumentsTextField.getText();
-    }
-
-    public void addProgramArgumentsPanel() {
-        // Don't add it if text segment window blank (file closed or no assemble yet)
-        if (contentPane != null && contentPane.getComponentCount() > 0) {
-            contentPane.add(programArgumentsPanel, BorderLayout.NORTH);
-            contentPane.validate();
-        }
-    }
-
-    public void removeProgramArgumentsPanel() {
-        if (contentPane != null) {
-            contentPane.remove(programArgumentsPanel);
-            contentPane.validate();
-        }
-    }
-    //
-    ///////////////////////// end program arguments section  ////////////////////////
 
     /**
      * remove all components

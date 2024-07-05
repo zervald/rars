@@ -110,10 +110,6 @@ public class Settings extends Observable {
          */
         WARNINGS_ARE_ERRORS("WarningsAreErrors", false),
         /**
-         * Flag to determine whether or not to display and use program arguments
-         */
-        PROGRAM_ARGUMENTS("ProgramArguments", false),
-        /**
          * Flag to control whether or not highlighting is applied when explicit writing
          */
         EXPLICIT_WRITE_HIGHLIGHTING("ExplicitWriteHighlighting", true),

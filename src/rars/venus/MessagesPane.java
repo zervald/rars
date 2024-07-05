@@ -3,6 +3,7 @@ package rars.venus;
 import rars.ErrorList;
 import rars.Globals;
 import rars.Settings;
+import rars.simulator.ProgramArgumentList;
 import rars.simulator.Simulator;
 
 import javax.swing.*;
@@ -60,6 +61,7 @@ public class MessagesPane extends JPanel {
     private final JRadioButton buttonBatch;
     private final JButton inputTabClearButton;
     private final Box runioContent;
+    private final JTextArea programArguments;
     private JTabbedPane leftPane;
     private JSplitPane batchTab;
     JTextArea assemble, run, input, output;
@@ -85,6 +87,7 @@ public class MessagesPane extends JPanel {
         run = new JTextArea();
         input = new JTextArea();
         output = new JTextArea();
+        programArguments = new JTextArea();
         assemble.setEditable(false);
         run.setEditable(false);
         input.setEditable(true);
@@ -98,6 +101,8 @@ public class MessagesPane extends JPanel {
         run.setFont(monoFont);
         input.setFont(monoFont);
         output.setFont(monoFont);
+        programArguments.setFont(monoFont);
+        programArguments.getDocument().putProperty("filterNewlines", Boolean.TRUE); // single line
 
         JButton assembleTabClearButton = new JButton("Clear");
         assembleTabClearButton.setToolTipText("Clear the Messages area");
@@ -249,12 +254,28 @@ public class MessagesPane extends JPanel {
         runioTab.add(runioContent);
         updateIOTab();
 
+        /* The program argument tab */
+        JButton programArgumentsClearButton = new JButton("Clear");
+        programArgumentsClearButton.setToolTipText("Clear the program arguments");
+        programArgumentsClearButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        programArguments.setText("");
+                    }
+                });
+        JPanel programArgumentsPanel = new JPanel(new BorderLayout());
+        programArgumentsPanel.add(createBoxForButton(programArgumentsClearButton), BorderLayout.WEST);
+        programArgumentsPanel.add(new JScrollPane(programArguments, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+
         leftPane.addTab("Messages", assembleTab);
         leftPane.addTab("Run I/O", runioTab);
+        leftPane.addTab("Program Arguments", programArgumentsPanel);
         leftPane.setForeground(Color.BLACK);
 
         leftPane.setToolTipTextAt(0, "Messages produced by Run menu. Click on assemble error message to select erroneous line");
         leftPane.setToolTipTextAt(1, "Simulated console input (used while running) and other run messages");
+        leftPane.setToolTipTextAt(2, "Arguments provided to program at runtime via a0 (argc) and a1 (argv)");
 
         this.setLayout(new BorderLayout());
         this.add(leftPane);
@@ -467,6 +488,16 @@ public class MessagesPane extends JPanel {
      */
     public void selectRunMessageTab() {
         leftPane.setSelectedComponent(runioTab);
+    }
+
+    /**
+    * Method to store any program arguments into memory and registers before
+    * execution begins. Arguments go into the gap between $sp and kernel memory.
+    * Argument pointers and count go into runtime stack and $sp is adjusted accordingly.
+    * $a0 gets argument count (argc), $a1 gets stack address of first arg pointer (argv).
+    */
+    public void processProgramArgumentsIfAny() {
+        new ProgramArgumentList(programArguments.getText()).storeProgramArguments();
     }
 
     /**
