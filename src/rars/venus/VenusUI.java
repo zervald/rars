@@ -2,9 +2,11 @@ package rars.venus;
 
 import rars.Globals;
 import rars.Settings;
+import rars.SimulationException;
 import rars.riscv.InstructionSet;
 import rars.riscv.dump.DumpFormatLoader;
 import rars.simulator.Simulator;
+import rars.simulator.SimulatorNotice;
 import rars.venus.registers.ControlAndStatusWindow;
 import rars.venus.registers.FloatingPointWindow;
 import rars.venus.registers.RegistersPane;
@@ -1042,6 +1044,122 @@ public class VenusUI extends JFrame {
 
     public static int getMenuState() {
         return menuState;
+    }
+
+    /**
+     * Method called when a simulation is started to update the UI.
+     *
+     * @return true if the ui was updated to start the simulation.
+     */
+    public boolean onStartedSimulation(String name) {
+        ExecutePane executePane = getMainPane().getExecutePane();
+
+        if (!FileStatus.isAssembled()) {
+            // note: this should never occur since "Go" and "Step" are only enabled after successful assembly.
+            JOptionPane.showMessageDialog(this, "The program must be assembled before it can be run.");
+            return false;
+        }
+
+        if (!getStarted()) {
+            getMessagesPane().processProgramArgumentsIfAny();
+        }
+
+        if (!getReset() && !getStarted()) {
+            // This should never occur because at termination the Go and Step buttons are disabled.
+            JOptionPane.showMessageDialog(this, "reset " + mainUI.getReset() + " started " + mainUI.getStarted());//"You must reset before you can execute the program again.");
+            return false;
+        }
+
+        setStarted(true);  // added 8/27/05
+
+        getMessagesPane().postMessage(name + ": running " + FileStatus.getFile().getName() + "\n\n");
+        getMessagesPane().selectRunMessageTab();
+        executePane.getTextSegmentWindow().setCodeHighlighting(false);
+        executePane.getTextSegmentWindow().unhighlightAllSteps();
+        //clears highlight of registers and data segment if the run step was used before
+        executePane.getRegistersWindow().clearHighlighting();
+        executePane.getFloatingPointWindow().clearHighlighting();
+        executePane.getControlAndStatusWindow().clearHighlighting();
+        executePane.getDataSegmentWindow().clearHighlighting();
+        //FileStatus.set(FileStatus.RUNNING);
+        setMenuState(FileStatus.RUNNING);
+
+        return true;
+    }
+
+    /**
+     * Method called when a simulation is stopped to update the UI.
+     */
+    public void onStoppedSimulation(String name, SimulatorNotice notice) {
+        ExecutePane executePane = getMainPane().getExecutePane();
+        executePane.getRegistersWindow().updateRegisters();
+        executePane.getFloatingPointWindow().updateRegisters();
+        executePane.getControlAndStatusWindow().updateRegisters();
+        executePane.getDataSegmentWindow().updateValues();
+
+        if (notice.getDone()) {
+            RunGoAction.resetMaxSteps();
+            executePane.getTextSegmentWindow().unhighlightAllSteps();
+            executePane.getTextSegmentWindow().setCodeHighlighting(false);
+            FileStatus.set(FileStatus.TERMINATED);
+        } else {
+            executePane.getTextSegmentWindow().setCodeHighlighting(true);
+            executePane.getTextSegmentWindow().highlightStepAtPC();
+            FileStatus.set(FileStatus.RUNNABLE);
+        }
+
+        Simulator.Reason reason = notice.getReason();
+        switch (reason) {
+            case NORMAL_TERMINATION:
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution completed successfully.\n\n");
+                mainUI.getMessagesPane().postRunMessage(
+                        "\n-- program is finished running (" + Globals.exitCode + ") --\n\n");
+                mainUI.getMessagesPane().selectRunMessageTab();
+                break;
+            case CLIFF_TERMINATION:
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution terminated by null instruction.\n\n");
+                mainUI.getMessagesPane().postRunMessage(
+                        "\n-- program is finished running (dropped off bottom) --\n\n");
+                mainUI.getMessagesPane().selectRunMessageTab();
+                break;
+            case EXCEPTION:
+                SimulationException pe = notice.getException();
+                mainUI.getMessagesPane().postMessage(
+                        pe.error().generateReport());
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution terminated with errors.\n\n");
+                mainUI.getMessagesPane().postRunMessage("\n"+pe.error().getMessage());
+                break;
+            case STOP:
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution terminated by user.\n\n");
+                mainUI.getMessagesPane().selectMessageTab();
+                break;
+            case MAX_STEPS:
+                int maxSteps = notice.getMaxSteps();
+                if (maxSteps != 1) {
+                    // do not display something on Step Action
+                    mainUI.getMessagesPane().postMessage(
+                            "\n" + name + ": execution step limit of " + maxSteps + " exceeded.\n\n");
+                    mainUI.getMessagesPane().selectMessageTab();
+                }
+                break;
+            case BREAKPOINT:
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution paused at breakpoint: " + FileStatus.getFile().getName() + "\n\n");
+                break;
+            case PAUSE:
+                mainUI.getMessagesPane().postMessage(
+                        "\n" + name + ": execution paused by user: " + FileStatus.getFile().getName() + "\n\n");
+                break;
+            default:
+                // Ne devrait pas arriver
+                throw new IllegalStateException("Unexpected value: " + reason);
+        }
+
+        mainUI.setReset(false);
     }
 
     /**
