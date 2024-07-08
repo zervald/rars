@@ -73,6 +73,9 @@ public class Test {
         System.out.println(total);
         checkBinary();
         checkPsuedo();
+        if (total.length()>1) {
+            System.exit(1);
+        }
     }
     public static String run(String path, Program p){
         int[] errorlines = null;
