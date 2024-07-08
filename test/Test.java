@@ -9,7 +9,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Test {
+    boolean success = true;
+
     public static void main(String[] args){
+        Test self = new Test();
+        self.checkBinary();
+        self.checkPsuedo();
+        if (!self.success) {
+            System.exit(1);
+        }
         Globals.initialize();
         Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
         InstructionSet.rv64 = false;
@@ -72,11 +80,6 @@ public class Test {
             }
         }
         System.out.println(total);
-        checkBinary();
-        checkPsuedo();
-        if (total.length()>1) {
-            System.exit(1);
-        }
     }
     public static String run(String path, Program p){
         int[] errorlines = null;
@@ -149,7 +152,7 @@ public class Test {
         }
     }
 
-    public static void checkBinary(){
+    public void checkBinary(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;
@@ -232,7 +235,8 @@ public class Test {
             }
         }
     }
-    public static void checkPsuedo(){
+
+    public void checkPsuedo(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;
