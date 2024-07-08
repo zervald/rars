@@ -10,14 +10,19 @@ import java.util.Iterator;
 
 public class Test {
     boolean success = true;
+    StringBuilder total = new StringBuilder("\n");
 
     public static void main(String[] args){
         Test self = new Test();
+        self.checkPrograms();
         self.checkBinary();
         self.checkPsuedo();
         if (!self.success) {
             System.exit(1);
         }
+    }
+
+    public void checkPrograms() {
         Globals.initialize();
         Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
         InstructionSet.rv64 = false;
@@ -27,12 +32,26 @@ public class Test {
         opt.maxSteps = 1000;
         opt.selfModifyingCode = true;
         Program p = new Program(opt);
-        File[] tests = new File("./test").listFiles(), riscv_tests = new File("./test/riscv-tests").listFiles(), riscv_tests_64 = new File("./test/riscv-tests-64").listFiles();
+
+        runDirectory("./test", p);
+        runDirectory("./test/riscv-tests", p);
+
+        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
+        InstructionSet.rv64 = true;
+        Globals.instructionSet.populate();
+        runDirectory("./test", p);
+        runDirectory("./test/riscv-tests-64", p);
+
+        System.out.println(total);
+    }
+
+    public void runDirectory(String directory, Program p) {
+        File[] tests = new File(directory).listFiles();
         if(tests == null){
-            System.out.println("./test doesn't exist");
+            System.out.println(directory + " doesn't exist");
+            success = false;
             return;
         }
-        StringBuilder total = new StringBuilder("\n");
         for(File test : tests){
             if(test.isFile() && test.getName().endsWith(".s")){
                 String errors = run(test.getPath(),p);
@@ -44,43 +63,8 @@ public class Test {
                 }
             }
         }
-        if(riscv_tests == null){
-            System.out.println("./test/riscv-tests doesn't exist");
-            return;
-        }
-        for(File test : riscv_tests){
-            if(test.isFile() && test.getName().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
-                }
-            }
-        }
-
-
-        if(riscv_tests_64 == null){
-            System.out.println("./test/riscv-tests-64 doesn't exist");
-            return;
-        }
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
-        InstructionSet.rv64 = true;
-        Globals.instructionSet.populate();
-        for(File test : riscv_tests_64){
-            if(test.isFile() && test.getName().toLowerCase().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
-                }
-            }
-        }
-        System.out.println(total);
     }
+
     public static String run(String path, Program p){
         int[] errorlines = null;
         String stdin = "", stdout = "", stderr ="";
