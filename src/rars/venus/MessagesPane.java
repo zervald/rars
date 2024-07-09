@@ -61,7 +61,7 @@ public class MessagesPane extends JPanel {
     private final JRadioButton buttonBatch;
     private final JButton inputTabClearButton;
     private final Box runioContent;
-    private final JTextArea programArguments;
+    private final JTextField programArguments;
     private JTabbedPane leftPane;
     private JSplitPane batchTab;
     JTextArea assemble, run, input, output;
@@ -87,7 +87,7 @@ public class MessagesPane extends JPanel {
         run = new JTextArea();
         input = new JTextArea();
         output = new JTextArea();
-        programArguments = new JTextArea();
+        programArguments = new JTextField();
         assemble.setEditable(false);
         run.setEditable(false);
         input.setEditable(true);
@@ -102,7 +102,6 @@ public class MessagesPane extends JPanel {
         input.setFont(monoFont);
         output.setFont(monoFont);
         programArguments.setFont(monoFont);
-        programArguments.getDocument().putProperty("filterNewlines", Boolean.TRUE); // single line
 
         JButton assembleTabClearButton = new JButton("Clear");
         assembleTabClearButton.setToolTipText("Clear the Messages area");
@@ -113,7 +112,7 @@ public class MessagesPane extends JPanel {
                     }
                 });
         assembleTab = new JPanel(new BorderLayout());
-        assembleTab.add(createBoxForButton(assembleTabClearButton), BorderLayout.WEST);
+        assembleTab.add(createBoxForComponent(assembleTabClearButton), BorderLayout.WEST);
         assembleTab.add(new JScrollPane(assemble, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
         assemble.addMouseListener(
@@ -231,7 +230,7 @@ public class MessagesPane extends JPanel {
 
         /* runTab: A single interactive text area */
         runTab = new JPanel(new BorderLayout());
-        runTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        runTab.add(createBoxForComponent(runButtonBox), BorderLayout.WEST);
         runTab.add(new JScrollPane(run, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 
@@ -250,7 +249,7 @@ public class MessagesPane extends JPanel {
         /* The runio, the content is dynamic */
         runioContent = Box.createHorizontalBox();
         runioTab = new JPanel(new BorderLayout());
-        runioTab.add(createBoxForButton(runButtonBox), BorderLayout.WEST);
+        runioTab.add(createBoxForComponent(runButtonBox), BorderLayout.WEST);
         runioTab.add(runioContent);
         updateIOTab();
 
@@ -264,9 +263,9 @@ public class MessagesPane extends JPanel {
                     }
                 });
         JPanel programArgumentsPanel = new JPanel(new BorderLayout());
-        programArgumentsPanel.add(createBoxForButton(programArgumentsClearButton), BorderLayout.WEST);
-        programArgumentsPanel.add(new JScrollPane(programArguments, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+        programArgumentsPanel.add(createBoxForComponent(programArgumentsClearButton), BorderLayout.WEST);
+        programArguments.setMaximumSize(new Dimension(Integer.MAX_VALUE, programArguments.getPreferredSize().height));
+        programArgumentsPanel.add(createBoxForComponent(programArguments), BorderLayout.CENTER);
 
         leftPane.addTab("Messages", assembleTab);
         leftPane.addTab("Run I/O", runioTab);
@@ -299,16 +298,16 @@ public class MessagesPane extends JPanel {
     }
 
     // Center given button in a box, centered vertically and 6 pixels on left and right
-    private Box createBoxForButton(Component button) {
-        Box buttonRow = Box.createHorizontalBox();
-        buttonRow.add(Box.createHorizontalStrut(6));
-        buttonRow.add(button);
-        buttonRow.add(Box.createHorizontalStrut(6));
-        Box buttonBox = Box.createVerticalBox();
-        buttonBox.add(Box.createVerticalGlue());
-        buttonBox.add(buttonRow);
-        buttonBox.add(Box.createVerticalGlue());
-        return buttonBox;
+    private Box createBoxForComponent(Component component) {
+        Box componentRow = Box.createHorizontalBox();
+        componentRow.add(Box.createHorizontalStrut(6));
+        componentRow.add(component);
+        componentRow.add(Box.createHorizontalStrut(6));
+        Box componentBox = Box.createVerticalBox();
+        componentBox.add(Box.createVerticalGlue());
+        componentBox.add(componentRow);
+        componentBox.add(Box.createVerticalGlue());
+        return componentBox;
     }
 
     /**
