@@ -6,6 +6,7 @@
 # 32 "<command-line>" 2
 # 1 "isa/rv64ui/xor.S"
 # See LICENSE for license details.
+#exit:42
 
 #*****************************************************************************
 # xor.S

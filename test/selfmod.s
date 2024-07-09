@@ -1,5 +1,4 @@
-
-# TODO: make this run with self modifications 
+#exit:42
 .text 
 main:
 	la s0, toload

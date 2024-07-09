@@ -1,3 +1,4 @@
+#exit:42
 .text
 main:
   la s0, tdat

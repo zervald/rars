@@ -1,4 +1,5 @@
 #stdout:87654321HGFEDCBA2685009920
+#exit:42
 .data
 data:
 .eqv eqv, 0x3132333435363738

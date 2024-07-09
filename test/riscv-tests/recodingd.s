@@ -1,3 +1,4 @@
+#exit:42
 .text
 main:
   # Make sure infinities with different mantissas compare as equal.

@@ -1,5 +1,6 @@
 #stdin:hello\n\nworldNOTWORLD\nXXXX\nYYYY\nremain
 #stdout:0hello\n1\n2world34A5remain\n6\n
+#exit:42
 
 .eqv PrintInt, 1
 .eqv ReadString, 8

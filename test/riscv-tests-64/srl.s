@@ -6,6 +6,7 @@
 # 32 "<command-line>" 2
 # 1 "isa/rv64ui/srl.S"
 # See LICENSE for license details.
+#exit:42
 
 #*****************************************************************************
 # srl.S

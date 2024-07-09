@@ -6,6 +6,7 @@
 # 32 "<command-line>" 2
 # 1 "isa/rv64ui/simple.S"
 # See LICENSE for license details.
+#exit:42
 
 #*****************************************************************************
 # simple.S

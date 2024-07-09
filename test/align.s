@@ -1,3 +1,4 @@
+#exit:42
 	.data
 	# autoalign by default
 z:	.byte 0x11
