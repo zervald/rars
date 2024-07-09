@@ -14,6 +14,22 @@ public class Test {
 
     public static void main(String[] args){
         Test self = new Test();
+        if (args.length != 0) {
+            Program p = self.setupProgram(true);
+            for (String arg : args) {
+                File file = new File(arg);
+                if (file.isDirectory()) {
+                    self.runDirectory(arg, p);
+                } else if (file.isFile()) {
+                    self.runFile(arg, p);
+                } else {
+                    System.out.println(arg + " bad file");
+                    self.success = false;
+                }
+            }
+            System.out.println(self.total);
+            System.exit(self.success ? 0 : 1);
+        }
         self.checkPrograms();
         self.checkBinary();
         self.checkPsuedo();
