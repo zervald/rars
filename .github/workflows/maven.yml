@@ -1,14 +1,14 @@
-name: gradle
+name: maven
 on:
   push:
-    braches:
+    branches:
     - master
   pull_request:
-    braches:
+    branches:
     - master
 
 jobs:
-  gradle:
+  maven:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
