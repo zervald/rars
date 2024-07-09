@@ -72,7 +72,7 @@ public class RunGoAction extends GuiAction {
         executePane = mainUI.getMainPane().getExecutePane();
         if (FileStatus.isAssembled()) {
             if (!mainUI.getStarted()) {
-                processProgramArgumentsIfAny();  // DPS 17-July-2008
+                mainUI.getMessagesPane().processProgramArgumentsIfAny();  // DPS 17-July-2008
             }
             if (mainUI.getReset() || mainUI.getStarted()) {
 
@@ -217,20 +217,4 @@ public class RunGoAction extends GuiAction {
     public static void resetMaxSteps() {
         maxSteps = defaultMaxSteps;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    // Method to store any program arguments into MIPS memory and registers before
-    // execution begins. Arguments go into the gap between $sp and kernel memory.
-    // Argument pointers and count go into runtime stack and $sp is adjusted accordingly.
-    // $a0 gets argument count (argc), $a1 gets stack address of first arg pointer (argv).
-    private void processProgramArgumentsIfAny() {
-        String programArguments = executePane.getTextSegmentWindow().getProgramArguments();
-        if (programArguments == null || programArguments.length() == 0 ||
-                !Globals.getSettings().getBooleanSetting(Settings.Bool.PROGRAM_ARGUMENTS)) {
-            return;
-        }
-        new ProgramArgumentList(programArguments).storeProgramArguments();
-    }
-
-
 }
