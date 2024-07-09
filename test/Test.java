@@ -129,7 +129,7 @@ public class Test {
             p.setup(null,stdin);
             Simulator.Reason r = p.simulate();
             if(r != Simulator.Reason.NORMAL_TERMINATION){
-                return "Ended abnormally while executing " + path;
+                return "Ended abnormally " + r + " while executing " + path;
             }else{
                 if(p.getExitCode() != exitCode) {
                     return "Final exit code was wrong for " + path + "\n Expected "+exitCode+" got "+p.getExitCode();
