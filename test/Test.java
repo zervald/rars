@@ -138,7 +138,7 @@ public class Test {
                     return "STDOUT was wrong for " + path + "\n Expected \""+stdout+"\" got \""+p.getSTDOUT()+"\"";
                 }
                 if(!p.getSTDERR().trim().equals(stderr)){
-                    return "STDERR was wrong for " + path;
+                    return "STDERR was wrong for " + path + "\n Expected \""+stderr+"\" got \""+p.getSTDERR()+"\"";
                 }
                 return "";
             }
