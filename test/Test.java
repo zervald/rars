@@ -17,6 +17,7 @@ public class Test {
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 1000;
+        opt.selfModifyingCode = true;
         Program p = new Program(opt);
         File[] tests = new File("./test").listFiles(), riscv_tests = new File("./test/riscv-tests").listFiles(), riscv_tests_64 = new File("./test/riscv-tests-64").listFiles();
         if(tests == null){
@@ -73,6 +74,9 @@ public class Test {
         System.out.println(total);
         checkBinary();
         checkPsuedo();
+        if (total.length()>1) {
+            System.exit(1);
+        }
     }
     public static String run(String path, Program p){
         int[] errorlines = null;
