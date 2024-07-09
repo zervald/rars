@@ -22,17 +22,21 @@ public class Test {
         }
     }
 
-    public void checkPrograms() {
+    Program setupProgram(boolean rv64) {
         Globals.initialize();
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
-        InstructionSet.rv64 = false;
+        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,rv64);
+        InstructionSet.rv64 = rv64;
         Globals.instructionSet.populate();
         Options opt = new Options();
         opt.startAtMain = true;
-        opt.maxSteps = 1000;
+        opt.maxSteps = 1000000;
         opt.selfModifyingCode = true;
-        Program p = new Program(opt);
+        return new Program(opt);
+    }
 
+    public void checkPrograms() {
+
+        Program p = setupProgram(false);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests", p);
 
