@@ -92,6 +92,7 @@ public class Test {
     public static String run(String path, Program p){
         int[] errorlines = null;
         String stdin = "", stdout = "", stderr ="";
+        int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
         try {
@@ -110,6 +111,8 @@ public class Test {
                     stdout = line.replaceFirst("#stdout:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#stderr:")) {
                     stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
+                } else if (line.startsWith("#exit:")) {
+                    exitCode = Integer.parseInt(line.replaceFirst("#exit:", ""));
                 }
                 line = br.readLine();
             }
@@ -128,8 +131,8 @@ public class Test {
             if(r != Simulator.Reason.NORMAL_TERMINATION){
                 return "Ended abnormally while executing " + path;
             }else{
-                if(p.getExitCode() != 42) {
-                    return "Final exit code was wrong for " + path;
+                if(p.getExitCode() != exitCode) {
+                    return "Final exit code was wrong for " + path + "\n Expected "+exitCode+" got "+p.getExitCode();
                 }
                 if(!p.getSTDOUT().trim().equals(stdout)){
                     return "STDOUT was wrong for " + path + "\n Expected \""+stdout+"\" got \""+p.getSTDOUT()+"\"";
