@@ -97,7 +97,7 @@ public class Test {
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             String line = br.readLine();
-            while(line.startsWith("#")){
+            while(line != null){
                 if (line.startsWith("#error on lines:")) {
                     String[] linenumbers = line.replaceFirst("#error on lines:", "").split(",");
                     errorlines = new int[linenumbers.length];
