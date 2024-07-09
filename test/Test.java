@@ -91,9 +91,9 @@ public class Test {
                 } else if (line.startsWith("#stdin:")) {
                     stdin = line.replaceFirst("#stdin:", "").replaceAll("\\\\n","\n");
                 } else if (line.startsWith("#stdout:")) {
-                    stdout = line.replaceFirst("#stdout:", "").replaceAll("\\\\n","\n");
+                    stdout = line.replaceFirst("#stdout:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#stderr:")) {
-                    stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n");
+                    stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
                 }
                 line = br.readLine();
             }
@@ -115,10 +115,10 @@ public class Test {
                 if(p.getExitCode() != 42) {
                     return "Final exit code was wrong for " + path;
                 }
-                if(!p.getSTDOUT().equals(stdout)){
+                if(!p.getSTDOUT().trim().equals(stdout)){
                     return "STDOUT was wrong for " + path + "\n Expected \""+stdout+"\" got \""+p.getSTDOUT()+"\"";
                 }
-                if(!p.getSTDERR().equals(stderr)){
+                if(!p.getSTDERR().trim().equals(stderr)){
                     return "STDERR was wrong for " + path;
                 }
                 return "";
