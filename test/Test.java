@@ -58,14 +58,18 @@ public class Test {
         }
         for(File test : tests){
             if(test.isFile() && test.getName().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
-                }
+                runFile(test.getPath(), p);
             }
+        }
+    }
+
+    public void runFile(String path, Program p) {
+        String errors = run(path, p);
+        if (errors.equals("")) {
+            System.out.print('.');
+        } else {
+            System.out.print('X');
+            total.append(errors).append('\n');
         }
     }
 
