@@ -105,7 +105,7 @@ public class Test {
         try {
             p.assemble(path);
             if(errorlines != null){
-                return "Expected asssembly error, but successfully assembled " + path;
+                return "Expected assembly error, but successfully assembled " + path;
             }
             p.setup(null,stdin);
             Simulator.Reason r = p.simulate();
