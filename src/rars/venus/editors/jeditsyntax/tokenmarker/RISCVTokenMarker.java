@@ -483,16 +483,10 @@ public class RISCVTokenMarker extends TokenMarker {
             id = labelKeywords.lookup(line, lastKeyword, len);
         }
         if (id != Token.NULL) {
-            // If this is a Token.KEYWORD1 and line already contains a keyword,
-            // then assume this one is a label reference and ignore it.
-            //   if (id == Token.KEYWORD1 && tokenListContainsKeyword()) {
-            //    }
-            //    else {
             if (lastKeyword != lastOffset)
                 addToken(lastKeyword - lastOffset, Token.NULL);
             addToken(len, id);
             lastOffset = i;
-            //  }
         }
         lastKeyword = i1;
     }
