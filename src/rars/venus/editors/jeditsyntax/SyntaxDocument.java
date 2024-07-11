@@ -135,6 +135,7 @@ public class SyntaxDocument extends PlainDocument {
                         ch.getChildrenAdded().length -
                                 ch.getChildrenRemoved().length);
             }
+            tokenMarker.updated(evt);
         }
 
         super.fireInsertUpdate(evt);
@@ -154,6 +155,7 @@ public class SyntaxDocument extends PlainDocument {
                         ch.getChildrenRemoved().length -
                                 ch.getChildrenAdded().length);
             }
+            tokenMarker.updated(evt);
         }
 
         super.fireRemoveUpdate(evt);
