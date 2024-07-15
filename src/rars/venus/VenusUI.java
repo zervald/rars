@@ -1081,8 +1081,6 @@ public class VenusUI extends JFrame {
         executePane.getFloatingPointWindow().clearHighlighting();
         executePane.getControlAndStatusWindow().clearHighlighting();
         executePane.getDataSegmentWindow().clearHighlighting();
-        //FileStatus.set(FileStatus.RUNNING);
-        setMenuState(FileStatus.RUNNING);
 
         return true;
     }

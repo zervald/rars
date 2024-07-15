@@ -70,6 +70,7 @@ public class RunGoAction extends GuiAction {
         if (!mainUI.onStartedSimulation(name)) {
             return;
         }
+        mainUI.setMenuState(FileStatus.RUNNING);
 
         // Setup cleanup procedures for the simulation
         final Observer stopListener =
