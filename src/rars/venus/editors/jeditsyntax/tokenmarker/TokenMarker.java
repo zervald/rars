@@ -11,6 +11,7 @@ package rars.venus.editors.jeditsyntax.tokenmarker;
 
 import rars.venus.editors.jeditsyntax.PopupHelpItem;
 
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.Segment;
 import java.util.ArrayList;
 
@@ -312,6 +313,12 @@ public abstract class TokenMarker {
             lastToken.length = length;
             lastToken.id = id;
         }
+    }
+
+    /**
+     * method called when there is a change in the document.
+     */
+    public void updated(DocumentEvent evt) {
     }
 
     /**

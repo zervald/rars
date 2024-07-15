@@ -9,8 +9,7 @@
 
 package rars.venus.editors.jeditsyntax.tokenmarker;
 
-import rars.Globals;
-import rars.Settings;
+import rars.*;
 import rars.assembler.Directives;
 import rars.riscv.BasicInstruction;
 import rars.riscv.hardware.FloatingPointRegisterFile;
@@ -19,7 +18,9 @@ import rars.riscv.hardware.RegisterFile;
 import rars.riscv.Instruction;
 import rars.venus.editors.jeditsyntax.KeywordMap;
 import rars.venus.editors.jeditsyntax.PopupHelpItem;
+import rars.venus.editors.jeditsyntax.SyntaxDocument;
 
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.Segment;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +72,14 @@ public class RISCVTokenMarker extends TokenMarker {
         return tokenExamples;
     }
 
+    @Override
+    public void updated(DocumentEvent evt) {
+        SyntaxDocument document = (SyntaxDocument) evt.getDocument();
+        // clear info and retokenize all to collect label definitions
+        labelKeywords.clear();
+        document.tokenizeLines();
+    }
+
 
     public byte markTokensImpl(byte token, Segment line, int lineIndex) {
         char[] array = line.array;
@@ -119,16 +128,22 @@ public class RISCVTokenMarker extends TokenMarker {
                             // (3) there are spaces between label name and colon, (4) label is valid
                             // MIPS identifier (otherwise would catch, say, 0 (zero) in .word 0:10)
                             backslash = false;
-                            //String lab = new String(array, lastOffset, i1-lastOffset-1).trim();
                             boolean validIdentifier = false;
+                            String label = null;
                             try {
-                                validIdentifier = rars.assembler.TokenTypes.isValidIdentifier(new String(array, lastOffset, i1 - lastOffset - 1).trim());
+                                label = new String(array, lastOffset, i1 - lastOffset - 1).trim();
+                                validIdentifier = rars.assembler.TokenTypes.isValidIdentifier(label);
                             } catch (StringIndexOutOfBoundsException e) {
                                 validIdentifier = false;
                             }
                             if (validIdentifier) {
                                 addToken(i1 - lastOffset, Token.LABEL);
                                 lastOffset = lastKeyword = i1;
+                                // Register the label, if new, to recognize its usages
+                                byte t = labelKeywords.lookup(label);
+                                if (t == Token.NULL) {
+                                    labelKeywords.add(label, Token.LABEL);
+                                }
                             }
                             break;
                         case '#':
@@ -454,6 +469,7 @@ public class RISCVTokenMarker extends TokenMarker {
     // private members
     private static KeywordMap cKeywords;
     private static String[] tokenLabels, tokenExamples;
+    private KeywordMap labelKeywords = new KeywordMap(false);
     private KeywordMap keywords;
     private int lastOffset;
     private int lastKeyword;
@@ -463,17 +479,14 @@ public class RISCVTokenMarker extends TokenMarker {
 
         int len = i - lastKeyword;
         byte id = keywords.lookup(line, lastKeyword, len);
+        if (id == Token.NULL) {
+            id = labelKeywords.lookup(line, lastKeyword, len);
+        }
         if (id != Token.NULL) {
-            // If this is a Token.KEYWORD1 and line already contains a keyword,
-            // then assume this one is a label reference and ignore it.
-            //   if (id == Token.KEYWORD1 && tokenListContainsKeyword()) {
-            //    }
-            //    else {
             if (lastKeyword != lastOffset)
                 addToken(lastKeyword - lastOffset, Token.NULL);
             addToken(len, id);
             lastOffset = i;
-            //  }
         }
         lastKeyword = i1;
     }

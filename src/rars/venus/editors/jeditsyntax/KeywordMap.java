@@ -13,6 +13,7 @@ package rars.venus.editors.jeditsyntax;
 import rars.venus.editors.jeditsyntax.tokenmarker.Token;
 
 import javax.swing.text.Segment;
+import java.util.Arrays;
 
 /**
  * A <code>KeywordMap</code> is similar to a hashtable in that it maps keys
@@ -75,6 +76,22 @@ public class KeywordMap {
     }
 
     /**
+     * Looks up a key.
+     */
+    public byte lookup(String keyword) {
+        if (keyword.isEmpty())
+            return Token.NULL;
+        char[] chars = keyword.toCharArray();
+        Keyword k = map[getStringMapKey(keyword)];
+        while (k != null) {
+            if (Arrays.equals(k.keyword, chars))
+                return k.id;
+            k = k.next;
+        }
+        return Token.NULL;
+    }
+
+    /**
      * Adds a key-value mapping.
      *
      * @param keyword The key
@@ -83,6 +100,15 @@ public class KeywordMap {
     public void add(String keyword, byte id) {
         int key = getStringMapKey(keyword);
         map[key] = new Keyword(keyword.toCharArray(), id, map[key]);
+    }
+
+    /**
+     * remove all keywords.
+     */
+    public void clear() {
+        for (int i = 0; i < mapLength; i++) {
+            map[i] = null;
+        }
     }
 
     /**
