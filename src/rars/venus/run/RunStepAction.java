@@ -86,7 +86,10 @@ public class RunStepAction extends GuiAction {
                         }
                     };
             Simulator.getInstance().addObserver(stopListener);
-            executePane.getRegistersWindow().clearHighlighting();   //clears highlight of previous step
+            //clears highlight of previous step
+            executePane.getRegistersWindow().clearHighlighting();
+            executePane.getFloatingPointWindow().clearHighlighting();
+            executePane.getControlAndStatusWindow().clearHighlighting();
             executePane.getDataSegmentWindow().clearHighlighting();
 
             Globals.program.startSimulation(1, null);
