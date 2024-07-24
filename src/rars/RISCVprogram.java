@@ -56,6 +56,7 @@ public class RISCVprogram {
     private ArrayList<TokenList> tokenList;
     private ArrayList<ProgramStatement> parsedList;
     private ArrayList<ProgramStatement> machineList;
+    private ArrayList<ProgramStatement> textSegmentLines;
     private BackStepper backStepper;
     private SymbolTable localSymbolTable;
     private MacroPool macroPool;
@@ -163,6 +164,10 @@ public class RISCVprogram {
 
     public ArrayList<ProgramStatement> getMachineList() {
         return machineList;
+    }
+
+    public ArrayList<ProgramStatement> getTextSegmentLines() {
+        return textSegmentLines;
     }
 
 
