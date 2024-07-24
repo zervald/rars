@@ -1,4 +1,5 @@
-#stdout:87654321HGFEDCBA0x100100000x00000000
+#stdout:87654321HGFEDCBA2685009920
+#exit:42
 .data
 data:
 .eqv eqv, 0x3132333435363738
@@ -14,7 +15,7 @@ la a0, data
 ecall
 
 la s1, data2
-li a7, 34 # PrintIntHex
+li a7, 1 # PrintInt
 lw a0, 0(s1)
 ecall
 lw a0, 4(s1)

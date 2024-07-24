@@ -1,5 +1,6 @@
 #stdin:hello\nworldXremain
 #stdout:11hello\nworld....\n1Xello\nworld....\n0Xello\nworld....\n6remainworld....\n0remainworld....\n
+#exit:42
 
 .eqv PrintInt, 1
 .eqv Read, 63

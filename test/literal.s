@@ -1,4 +1,5 @@
 #stdout:168
+#exit:42
 .text
 main:
 	li a0, 42

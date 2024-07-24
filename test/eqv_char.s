@@ -1,3 +1,4 @@
+#exit:42
 	.eqv SUBSTITUTE, 'a'    # a is 97
 
 	.text

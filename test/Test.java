@@ -9,84 +9,96 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Test {
+    boolean success = true;
+    StringBuilder total = new StringBuilder("\n");
+
     public static void main(String[] args){
-        Globals.initialize();
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
-        InstructionSet.rv64 = false;
-        Globals.instructionSet.populate();
-        Options opt = new Options();
-        opt.startAtMain = true;
-        opt.maxSteps = 1000;
-        opt.selfModifyingCode = true;
-        Program p = new Program(opt);
-        File[] tests = new File("./test").listFiles(), riscv_tests = new File("./test/riscv-tests").listFiles(), riscv_tests_64 = new File("./test/riscv-tests-64").listFiles();
-        if(tests == null){
-            System.out.println("./test doesn't exist");
-            return;
-        }
-        StringBuilder total = new StringBuilder("\n");
-        for(File test : tests){
-            if(test.isFile() && test.getName().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
+        Test self = new Test();
+        if (args.length != 0) {
+            Program p = self.setupProgram(true);
+            for (String arg : args) {
+                File file = new File(arg);
+                if (file.isDirectory()) {
+                    self.runDirectory(arg, p);
+                } else if (file.isFile()) {
+                    self.runFile(arg, p);
+                } else {
+                    System.out.println(arg + " bad file");
+                    self.success = false;
                 }
             }
+            System.out.println(self.total);
+            System.exit(self.success ? 0 : 1);
         }
-        if(riscv_tests == null){
-            System.out.println("./test/riscv-tests doesn't exist");
-            return;
-        }
-        for(File test : riscv_tests){
-            if(test.isFile() && test.getName().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
-                }
-            }
-        }
-
-
-        if(riscv_tests_64 == null){
-            System.out.println("./test/riscv-tests-64 doesn't exist");
-            return;
-        }
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
-        InstructionSet.rv64 = true;
-        Globals.instructionSet.populate();
-        for(File test : riscv_tests_64){
-            if(test.isFile() && test.getName().toLowerCase().endsWith(".s")){
-                String errors = run(test.getPath(),p);
-                if(errors.equals("")) {
-                    System.out.print('.');
-                }else{
-                    System.out.print('X');
-                    total.append(errors).append('\n');
-                }
-            }
-        }
-        System.out.println(total);
-        checkBinary();
-        checkPsuedo();
-        if (total.length()>1) {
+        self.checkPrograms();
+        self.checkBinary();
+        self.checkPsuedo();
+        if (!self.success) {
             System.exit(1);
         }
     }
+
+    Program setupProgram(boolean rv64) {
+        Globals.initialize();
+        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,rv64);
+        InstructionSet.rv64 = rv64;
+        Globals.instructionSet.populate();
+        Options opt = new Options();
+        opt.startAtMain = true;
+        opt.maxSteps = 1000000;
+        opt.selfModifyingCode = true;
+        return new Program(opt);
+    }
+
+    public void checkPrograms() {
+
+        Program p = setupProgram(false);
+        runDirectory("./test", p);
+        runDirectory("./test/riscv-tests", p);
+
+        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
+        InstructionSet.rv64 = true;
+        Globals.instructionSet.populate();
+        runDirectory("./test", p);
+        runDirectory("./test/riscv-tests-64", p);
+
+        System.out.println(total);
+    }
+
+    public void runDirectory(String directory, Program p) {
+        File[] tests = new File(directory).listFiles();
+        if(tests == null){
+            System.out.println(directory + " doesn't exist");
+            success = false;
+            return;
+        }
+        for(File test : tests){
+            if(test.isFile() && test.getName().endsWith(".s")){
+                runFile(test.getPath(), p);
+            }
+        }
+    }
+
+    public void runFile(String path, Program p) {
+        String errors = run(path, p);
+        if (errors.equals("")) {
+            System.out.print('.');
+        } else {
+            System.out.print('X');
+            total.append(errors).append('\n');
+        }
+    }
+
     public static String run(String path, Program p){
         int[] errorlines = null;
         String stdin = "", stdout = "", stderr ="";
+        int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             String line = br.readLine();
-            while(line.startsWith("#")){
+            while(line != null){
                 if (line.startsWith("#error on lines:")) {
                     String[] linenumbers = line.replaceFirst("#error on lines:", "").split(",");
                     errorlines = new int[linenumbers.length];
@@ -96,9 +108,11 @@ public class Test {
                 } else if (line.startsWith("#stdin:")) {
                     stdin = line.replaceFirst("#stdin:", "").replaceAll("\\\\n","\n");
                 } else if (line.startsWith("#stdout:")) {
-                    stdout = line.replaceFirst("#stdout:", "").replaceAll("\\\\n","\n");
+                    stdout = line.replaceFirst("#stdout:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#stderr:")) {
-                    stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n");
+                    stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
+                } else if (line.startsWith("#exit:")) {
+                    exitCode = Integer.parseInt(line.replaceFirst("#exit:", ""));
                 }
                 line = br.readLine();
             }
@@ -110,21 +124,21 @@ public class Test {
         try {
             p.assemble(path);
             if(errorlines != null){
-                return "Expected asssembly error, but successfully assembled " + path;
+                return "Expected assembly error, but successfully assembled " + path;
             }
             p.setup(null,stdin);
             Simulator.Reason r = p.simulate();
             if(r != Simulator.Reason.NORMAL_TERMINATION){
-                return "Ended abnormally while executing " + path;
+                return "Ended abnormally " + r + " while executing " + path;
             }else{
-                if(p.getExitCode() != 42) {
-                    return "Final exit code was wrong for " + path;
+                if(p.getExitCode() != exitCode) {
+                    return "Final exit code was wrong for " + path + "\n Expected "+exitCode+" got "+p.getExitCode();
                 }
-                if(!p.getSTDOUT().equals(stdout)){
+                if(!p.getSTDOUT().trim().equals(stdout)){
                     return "STDOUT was wrong for " + path + "\n Expected \""+stdout+"\" got \""+p.getSTDOUT()+"\"";
                 }
-                if(!p.getSTDERR().equals(stderr)){
-                    return "STDERR was wrong for " + path;
+                if(!p.getSTDERR().trim().equals(stderr)){
+                    return "STDERR was wrong for " + path + "\n Expected \""+stderr+"\" got \""+p.getSTDERR()+"\"";
                 }
                 return "";
             }
@@ -149,7 +163,7 @@ public class Test {
         }
     }
 
-    public static void checkBinary(){
+    public void checkBinary(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;
@@ -232,7 +246,8 @@ public class Test {
             }
         }
     }
-    public static void checkPsuedo(){
+
+    public void checkPsuedo(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;

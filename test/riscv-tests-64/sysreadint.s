@@ -1,4 +1,5 @@
 #stdin:1\n-1\n123456789\n2410117871984078658\n
+#exit:42
 	li a7, 5 # ReadInt
 
 	ecall
