@@ -51,8 +51,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 public class RunStepAction extends GuiAction {
 
-    private String name;
-    private ExecutePane executePane;
     private VenusUI mainUI;
 
     public RunStepAction(String name, Icon icon, String descrip,
@@ -65,79 +63,22 @@ public class RunStepAction extends GuiAction {
      * perform next simulated instruction step.
      */
     public void actionPerformed(ActionEvent e) {
-        name = this.getValue(Action.NAME).toString();
-        executePane = mainUI.getMainPane().getExecutePane();
-        if (FileStatus.isAssembled()) {
-            if (!mainUI.getStarted()) {  // DPS 17-July-2008
-                mainUI.getMessagesPane().processProgramArgumentsIfAny();
-            }
-            mainUI.setStarted(true);
-            mainUI.getMessagesPane().selectRunMessageTab();
-            executePane.getTextSegmentWindow().setCodeHighlighting(true);
+        String name = this.getValue(Action.NAME).toString();
+        if (!mainUI.onStartedSimulation(name)) {
+            return;
+        }
 
-            // Setup callback for after step finishes
-            final Observer stopListener =
-                    new Observer() {
-                        public void update(Observable o, Object simulator) {
-                            SimulatorNotice notice = ((SimulatorNotice) simulator);
-                            if (notice.getAction() != SimulatorNotice.SIMULATOR_STOP) return;
-                            EventQueue.invokeLater(() -> stepped(notice.getDone(), notice.getReason(), notice.getException()));
-                            o.deleteObserver(this);
-                        }
-                    };
-            Simulator.getInstance().addObserver(stopListener);
-            //clears highlight of previous step
-            executePane.getRegistersWindow().clearHighlighting();
-            executePane.getFloatingPointWindow().clearHighlighting();
-            executePane.getControlAndStatusWindow().clearHighlighting();
-            executePane.getDataSegmentWindow().clearHighlighting();
-
-            Globals.program.startSimulation(1, null);
-        } else {
-            // note: this should never occur since "Step" is only enabled after successful assembly.
-            JOptionPane.showMessageDialog(mainUI, "The program must be assembled before it can be run.");
-        }
-    }
-
-    // When step is completed, control returns here (from execution thread, indirectly)
-    // to update the GUI.
-    public void stepped(boolean done, Simulator.Reason reason, SimulationException pe) {
-        executePane.getRegistersWindow().updateRegisters();
-        executePane.getFloatingPointWindow().updateRegisters();
-        executePane.getControlAndStatusWindow().updateRegisters();
-        executePane.getDataSegmentWindow().updateValues();
-        if (!done) {
-            executePane.getTextSegmentWindow().highlightStepAtPC();
-            FileStatus.set(FileStatus.RUNNABLE);
-        }
-        if (done) {
-            RunGoAction.resetMaxSteps();
-            executePane.getTextSegmentWindow().unhighlightAllSteps();
-            executePane.getTextSegmentWindow().setCodeHighlighting(false);
-            FileStatus.set(FileStatus.TERMINATED);
-        }
-        if (done && pe == null) {
-            mainUI.getMessagesPane().postMessage(
-                    "\n" + name + ": execution " +
-                            ((reason == Simulator.Reason.CLIFF_TERMINATION) ? "terminated due to null instruction."
-                                    : "completed successfully.") + "\n\n");
-            mainUI.getMessagesPane().postRunMessage(
-                    "\n-- program is finished running" +
-                            ((reason == Simulator.Reason.CLIFF_TERMINATION) ? "(dropped off bottom)" : " (" + Globals.exitCode + ")") + " --\n\n");
-            mainUI.getMessagesPane().selectRunMessageTab();
-        }
-        if (pe != null) {
-            RunGoAction.resetMaxSteps();
-            mainUI.getMessagesPane().postMessage(
-                    pe.error().generateReport());
-            mainUI.getMessagesPane().postMessage(
-                    "\n" + name + ": execution terminated with errors.\n\n");
-            mainUI.getMessagesPane().postRunMessage("\n"+pe.error().getMessage());
-            FileStatus.set(FileStatus.TERMINATED); // should be redundant.
-            executePane.getTextSegmentWindow().setCodeHighlighting(true);
-            executePane.getTextSegmentWindow().unhighlightAllSteps();
-            executePane.getTextSegmentWindow().highlightStepAtAddress(RegisterFile.getProgramCounter() - 4);
-        }
-        mainUI.setReset(false);
+        // Setup callback for after step finishes
+        final Observer stopListener =
+                new Observer() {
+                    public void update(Observable o, Object simulator) {
+                        SimulatorNotice notice = ((SimulatorNotice) simulator);
+                        if (notice.getAction() != SimulatorNotice.SIMULATOR_STOP) return;
+                        EventQueue.invokeLater(() -> mainUI.onStoppedSimulation(name, notice));
+                        o.deleteObserver(this);
+                    }
+                };
+        Simulator.getInstance().addObserver(stopListener);
+        Globals.program.startSimulation(1, null);
     }
 }
