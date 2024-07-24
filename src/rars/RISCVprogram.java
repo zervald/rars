@@ -143,6 +143,16 @@ public class RISCVprogram {
         return parsedList;
     }
 
+    public ArrayList<ProgramStatement> createMachineList() {
+        machineList = new ArrayList<>();
+        return machineList;
+    }
+
+    public ArrayList<ProgramStatement> createTextSegmentLines() {
+        textSegmentLines = new ArrayList<>();
+        return textSegmentLines;
+    }
+
     /**
      * Produces existing list of parsed source code statements.
      *
@@ -337,7 +347,7 @@ public class RISCVprogram {
                               boolean warningsAreErrors) throws AssemblyException {
         this.backStepper = null;
         Assembler asm = new Assembler();
-        this.machineList = asm.assemble(programsToAssemble, extendedAssemblerEnabled, warningsAreErrors);
+        asm.assemble(programsToAssemble, extendedAssemblerEnabled, warningsAreErrors, this);
         this.backStepper = new BackStepper();
         return asm.getErrorList();
     }
