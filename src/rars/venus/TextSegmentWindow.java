@@ -101,48 +101,14 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
      * Should convert the lines of code over to the table rows and columns.
      **/
     public void setupTable() {
-        int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
         codeHighlighting = true;
         breakpointsEnabled = true;
-        ArrayList<ProgramStatement> sourceStatementList = Globals.program.getMachineList();
+        ArrayList<ProgramStatement> sourceStatementList = Globals.program.getTextSegmentLines();
         data = new Object[sourceStatementList.size()][columnNames.length];
         intAddresses = new int[data.length];
         addressRows = new Hashtable<>(data.length);
         executeMods = new Hashtable<>(data.length);
-        // Get highest source line number to determine #leading spaces so line numbers will vertically align
-        // In multi-file situation, this will not necessarily be the last line b/c sourceStatementList contains
-        // source lines from all files.  DPS 3-Oct-10
-        int maxSourceLineNumber = 0;
-        for (int i = sourceStatementList.size() - 1; i >= 0; i--) {
-            ProgramStatement statement = sourceStatementList.get(i);
-            if (statement.getSourceLine() > maxSourceLineNumber) {
-                maxSourceLineNumber = statement.getSourceLine();
-            }
-        }
-        int sourceLineDigits = ("" + maxSourceLineNumber).length();
-        int leadingSpaces = 0;
-        int lastLine = -1;
-        for (int i = 0; i < sourceStatementList.size(); i++) {
-            ProgramStatement statement = sourceStatementList.get(i);
-            intAddresses[i] = statement.getAddress();
-            addressRows.put(intAddresses[i], i);
-            data[i][BREAK_COLUMN] = false;
-            data[i][ADDRESS_COLUMN] = NumberDisplayBaseChooser.formatUnsignedInteger(statement.getAddress(), addressBase);
-            data[i][CODE_COLUMN] = NumberDisplayBaseChooser.formatNumber(statement.getBinaryStatement(), 16, 4);
-            data[i][BASIC_COLUMN] = statement.getPrintableBasicAssemblyStatement();
-            String sourceString = "";
-            if (!statement.getSource().equals("")) {
-                leadingSpaces = sourceLineDigits - ("" + statement.getSourceLine()).length();
-                String lineNumber = "          ".substring(0, leadingSpaces)
-                        + statement.getSourceLine() + ": ";
-                if (statement.getSourceLine() == lastLine)
-                    lineNumber = "          ".substring(0, sourceLineDigits) + "  ";
-                sourceString = lineNumber
-                        + rars.util.EditorFont.substituteSpacesForTabs(statement.getSource());
-            }
-            data[i][SOURCE_COLUMN] = sourceString;
-            lastLine = statement.getSourceLine();
-        }
+        addRows(sourceStatementList);
         contentPane.removeAll();
         tableModel = new TextTableModel(data);
         if (tableModelListener != null) {
@@ -183,6 +149,66 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
     }
 
     /**
+     * Add rows in the data array from the information in the sourceStatementList.
+     *
+     * @param sourceStatementList contains the statements from de source code (comments, .eqv, instructions, ...)
+     *                            and the linked information (address, code, basic instruction, source code, ...)
+     */
+    private void addRows(ArrayList<ProgramStatement> sourceStatementList) {
+        int maxSourceLineNumber = getMaxSourceLineNumber(sourceStatementList);
+        int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
+        int sourceLineDigits = ("" + maxSourceLineNumber).length();
+        int leadingSpaces = 0;
+        int lastLine = -1;
+
+        for (int i = 0; i < sourceStatementList.size(); i++) {
+            ProgramStatement statement = sourceStatementList.get(i);
+            intAddresses[i] = statement.getAddress();
+            addressRows.put(intAddresses[i], i);
+            data[i][BREAK_COLUMN] = false;
+            String address = "";
+            String code = "";
+            String basicInstruction = "";
+            String sourceString = "";
+            if (statement.getInstruction() != null) {
+                address = NumberDisplayBaseChooser.formatUnsignedInteger(statement.getAddress(), addressBase);
+                code = NumberDisplayBaseChooser.formatNumber(statement.getBinaryStatement(), 16, 4);
+                basicInstruction = statement.getPrintableBasicAssemblyStatement();
+            }
+            if (!statement.getSource().equals("")) {
+                leadingSpaces = sourceLineDigits - ("" + statement.getSourceLine()).length();
+                String lineNumber = "          ".substring(0, leadingSpaces)
+                        + statement.getSourceLine() + ": ";
+                if (statement.getSourceLine() == lastLine)
+                    lineNumber = "          ".substring(0, sourceLineDigits) + "  ";
+                sourceString = lineNumber
+                        + rars.util.EditorFont.substituteSpacesForTabs(statement.getSource());
+            }
+            data[i][ADDRESS_COLUMN] = address;
+            data[i][CODE_COLUMN] = code;
+            data[i][BASIC_COLUMN] = basicInstruction;
+            data[i][SOURCE_COLUMN] = sourceString;
+            lastLine = statement.getSourceLine();
+        }
+    }
+
+    /**
+     * Get highest source line number to determine #leading spaces so line numbers will vertically align
+     * In multi-file situation, this will not necessarily be the last line b/c sourceStatementList contains
+     * source lines from all files.  DPS 3-Oct-10
+     */
+    private static int getMaxSourceLineNumber(ArrayList<ProgramStatement> sourceStatementList) {
+        int maxSourceLineNumber = 0;
+        for (int i = sourceStatementList.size() - 1; i >= 0; i--) {
+            ProgramStatement statement = sourceStatementList.get(i);
+            if (statement.getSourceLine() > maxSourceLineNumber) {
+                maxSourceLineNumber = statement.getSourceLine();
+            }
+        }
+        return maxSourceLineNumber;
+    }
+
+    /**
      *
      */
     public void setColumnMaxWidth(TableColumn column, String referenceText) {
@@ -219,11 +245,12 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
         if (contentPane.getComponentCount() == 0)
             return; // ignore if no content to change
         int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
-        int address;
         String formattedAddress;
         for (int i = 0; i < intAddresses.length; i++) {
-            formattedAddress = NumberDisplayBaseChooser.formatUnsignedInteger(intAddresses[i], addressBase);
-            table.getModel().setValueAt(formattedAddress, i, ADDRESS_COLUMN);
+            if (intAddresses[i] != -1) {
+                formattedAddress = NumberDisplayBaseChooser.formatUnsignedInteger(intAddresses[i], addressBase);
+                table.getModel().setValueAt(formattedAddress, i, ADDRESS_COLUMN);
+            }
         }
     }
 
@@ -414,7 +441,19 @@ public class TextSegmentWindow extends JInternalFrame implements Observer {
         breakpointCount = 0;
         for (int i = 0; i < data.length; i++) {
             if ((Boolean) data[i][BREAK_COLUMN]) {
-                breakpoints[breakpointCount++] = intAddresses[i];
+                int index = i;
+                //if a breakpoint is not on an instruction, puts a breakpoint at next instruction
+                if(intAddresses[i] == -1) {
+                    for (int j = index; j < data.length; j++)
+                        if (intAddresses[j] != -1) {
+                            index = j;
+                            break;
+                        }
+                    if (index == i) //no instruction follows the breakpoint
+                        continue;   //don't add breakpoint
+                }
+                breakpoints[breakpointCount++] = intAddresses[index];
+                //TODO: we should probably, in place of this, lock the possibility to put a breakpoint if not an instruction
             }
         }
         Arrays.sort(breakpoints);

@@ -56,6 +56,7 @@ public class RISCVprogram {
     private ArrayList<TokenList> tokenList;
     private ArrayList<ProgramStatement> parsedList;
     private ArrayList<ProgramStatement> machineList;
+    private ArrayList<ProgramStatement> textSegmentLines;
     private BackStepper backStepper;
     private SymbolTable localSymbolTable;
     private MacroPool macroPool;
@@ -142,6 +143,16 @@ public class RISCVprogram {
         return parsedList;
     }
 
+    public ArrayList<ProgramStatement> createMachineList() {
+        machineList = new ArrayList<>();
+        return machineList;
+    }
+
+    public ArrayList<ProgramStatement> createTextSegmentLines() {
+        textSegmentLines = new ArrayList<>();
+        return textSegmentLines;
+    }
+
     /**
      * Produces existing list of parsed source code statements.
      *
@@ -163,6 +174,10 @@ public class RISCVprogram {
 
     public ArrayList<ProgramStatement> getMachineList() {
         return machineList;
+    }
+
+    public ArrayList<ProgramStatement> getTextSegmentLines() {
+        return textSegmentLines;
     }
 
 
@@ -332,7 +347,7 @@ public class RISCVprogram {
                               boolean warningsAreErrors) throws AssemblyException {
         this.backStepper = null;
         Assembler asm = new Assembler();
-        this.machineList = asm.assemble(programsToAssemble, extendedAssemblerEnabled, warningsAreErrors);
+        asm.assemble(programsToAssemble, extendedAssemblerEnabled, warningsAreErrors, this);
         this.backStepper = new BackStepper();
         return asm.getErrorList();
     }

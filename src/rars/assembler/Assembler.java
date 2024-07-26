@@ -88,17 +88,14 @@ public class Assembler {
      *                                 considered errors and terminate the assemble; false means the
      *                                 assembler will produce warning message but otherwise ignore
      *                                 warnings.
-     * @return An ArrayList representing the assembled program. Each member of
-     * the list is a ProgramStatement object containing the source,
-     * intermediate, and machine binary representations of a program
-     * statement. Returns null if incoming array list is null or empty.
+     * @param programAssembled         The whole program currently being assembled.
      * @see ProgramStatement
      **/
-    public ArrayList<ProgramStatement> assemble(ArrayList<RISCVprogram> tokenizedProgramFiles, boolean extendedAssemblerEnabled,
-                                                boolean warningsAreErrors) throws AssemblyException {
+    public void assemble(ArrayList<RISCVprogram> tokenizedProgramFiles, boolean extendedAssemblerEnabled,
+                                                boolean warningsAreErrors, RISCVprogram programAssembled) throws AssemblyException {
 
         if (tokenizedProgramFiles == null || tokenizedProgramFiles.size() == 0)
-            return null;
+            return;
         textAddress = new AddressSpace(Memory.textBaseAddress);
         dataAddress = new AddressSpace(Memory.dataBaseAddress);
         externAddress = Memory.externBaseAddress;
@@ -106,7 +103,8 @@ public class Assembler {
         accumulatedDataSegmentForwardReferences = new DataSegmentForwardReferences();
         Globals.symbolTable.clear();
         Globals.memory.clear();
-        ArrayList<ProgramStatement> machineList = new ArrayList<>();
+        ArrayList<ProgramStatement> machineList = programAssembled.createMachineList();
+        ArrayList<ProgramStatement> textSegmentLines = programAssembled.createTextSegmentLines();
         this.errors = new ErrorList();
         if (Globals.debug)
             System.out.println("Assembler first pass begins:");
@@ -136,6 +134,7 @@ public class Assembler {
             // tokenList is an ArrayList of TokenList objects, one per source line;
             // each ArrayList in tokenList consists of Token objects.
             ArrayList<SourceLine> sourceLineList = fileCurrentlyBeingAssembled.getSourceLineList();
+            ArrayList<String> sourceLines = fileCurrentlyBeingAssembled.getSourceList();
             ArrayList<TokenList> tokenList = fileCurrentlyBeingAssembled.getTokenList();
             ArrayList<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.createParsedList();
             // each file keeps its own macro definitions
@@ -156,6 +155,11 @@ public class Assembler {
                         extendedAssemblerEnabled);
                 if (statements != null) {
                     parsedList.addAll(statements);
+                } else if (!sourceLines.get(i).isBlank()) { //not an instruction and not a blank line
+                    ProgramStatement programStatement = new ProgramStatement(sourceLineList.get(i).getRISCVprogram(),
+                            sourceLines.get(i), tokenList.get(i), null, null,
+                            -1, sourceLineList.get(i).getLineNumber());
+                    parsedList.add(programStatement);
                 }
             }
             if (inMacroSegment) {
@@ -197,13 +201,15 @@ public class Assembler {
             this.fileCurrentlyBeingAssembled = program;
             ArrayList<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.getParsedList();
             for (ProgramStatement statement : parsedList) {
-                statement.buildBasicStatementFromBasicInstruction(errors);
+                if (statement.getInstruction() != null)
+                    statement.buildBasicStatementFromBasicInstruction(errors);
                 if (errors.errorsOccurred()) {
                     throw new AssemblyException(errors);
                 }
                 if (statement.getInstruction() instanceof BasicInstruction) {
                     machineList.add(statement);
-                } else {
+                    textSegmentLines.add(statement);
+                } else if (statement.getInstruction() != null) {
                     // It is a pseudo-instruction:
                     // 1. Fetch its basic instruction template list
                     // 2. For each template in the list,
@@ -266,9 +272,11 @@ public class Assembler {
                         textAddress.increment(Instruction.INSTRUCTION_LENGTH);
                         ps.buildBasicStatementFromBasicInstruction(errors);
                         machineList.add(ps);
+                        textSegmentLines.add(ps);
                     } // end of FOR loop, repeated for each template in list.
-                } // end of ELSE part for extended instruction.
-
+                } else {
+                    textSegmentLines.add(statement); //not an instruction
+                }
             } // end of assembler second pass.
         }
         if (Globals.debug)
@@ -309,7 +317,6 @@ public class Assembler {
         if (errors.errorsOccurred() || errors.warningsOccurred() && warningsAreErrors) {
             throw new AssemblyException(errors);
         }
-        return machineList;
     } // assemble()
 
     // //////////////////////////////////////////////////////////////////////
