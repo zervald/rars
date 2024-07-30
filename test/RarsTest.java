@@ -8,12 +8,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Test {
+public class RarsTest {
     boolean success = true;
     StringBuilder total = new StringBuilder("\n");
 
     public static void main(String[] args){
-        Test self = new Test();
+        RarsTest self = new RarsTest();
         if (args.length != 0) {
             Program p = self.setupProgram(true);
             for (String arg : args) {
@@ -32,7 +32,7 @@ public class Test {
         }
         self.checkPrograms();
         self.checkBinary();
-        self.checkPsuedo();
+        self.checkPseudo();
         if (!self.success) {
             System.exit(1);
         }
@@ -247,7 +247,7 @@ public class Test {
         }
     }
 
-    public void checkPsuedo(){
+    public void checkPseudo(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;

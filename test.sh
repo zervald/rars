@@ -1,6 +1,6 @@
 #!/bin/bash
-javac -cp rars.jar test/Test.java
-java -cp test:rars.jar Test
+javac -cp rars.jar test/RarsTest.java
+java -cp test:rars.jar RarsTest
 err=$?
-rm test/Test.class
+rm test/RarsTest.class
 exit "$err"
