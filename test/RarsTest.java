@@ -92,7 +92,7 @@ public class RarsTest {
 
     public static String run(String path, Program p){
         int[] errorlines = null;
-        String stdin = "", stdout = "", stderr ="", errorMessage = "";
+        String stdin = "", stdout = "", stderr ="", errorMessage = "", exitReason = "";
         ArrayList<String> programArgumentList = null;
         int exitCode = 0;
         // TODO: better config system
@@ -114,7 +114,12 @@ public class RarsTest {
                 } else if (line.startsWith("#stderr:")) {
                     stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#exit:")) {
-                    exitCode = Integer.parseInt(line.replaceFirst("#exit:", ""));
+                    exitReason = line.replaceFirst("#exit:", "");
+                    try {
+                        exitCode = Integer.parseInt(exitReason);
+                    } catch (NumberFormatException nfe) {
+                        exitCode = -1;
+                    }
                 } else if (line.startsWith("#args:")) {
                     String args = line.replaceFirst("#args:", "");
                     programArgumentList = new ProgramArgumentList(args).getProgramArgumentList();
@@ -136,7 +141,11 @@ public class RarsTest {
             p.setup(programArgumentList, stdin);
             Simulator.Reason r = p.simulate();
             if(r != Simulator.Reason.NORMAL_TERMINATION){
-                return "Ended abnormally " + r + " while executing " + path;
+                if (r.toString().toLowerCase().equals(exitReason)) {
+                    return "";
+                } else {
+                    return "Ended abnormally " + r + " while executing " + path;
+                }
             }else{
                 if(p.getExitCode() != exitCode) {
                     return "Final exit code was wrong for " + path + "\n Expected "+exitCode+" got "+p.getExitCode();
