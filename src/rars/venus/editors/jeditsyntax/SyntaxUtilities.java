@@ -27,6 +27,8 @@ import java.awt.event.MouseEvent;
  * @version $Id: SyntaxUtilities.java,v 1.9 1999/12/13 03:40:30 sp Exp $
  */
 public class SyntaxUtilities {
+
+    private static SyntaxStyle[] defaultStyles = getLightDefaultSyntaxStyles();
     /**
      * Checks if a subregion of a <code>Segment</code> is equal to a
      * string.
@@ -89,6 +91,13 @@ public class SyntaxUtilities {
      * to use the default syntax styles.
      */
     public static SyntaxStyle[] getDefaultSyntaxStyles() {
+        return defaultStyles;
+    }
+
+    /**
+     * Returns the light default style table.
+     */
+    public static SyntaxStyle[] getLightDefaultSyntaxStyles() {
         SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
 
         // SyntaxStyle constructor params: color, italic?, bold?
@@ -106,6 +115,40 @@ public class SyntaxUtilities {
         styles[Token.INVALID] = new SyntaxStyle(Color.red, false, false);
         styles[Token.MACRO_ARG] = new SyntaxStyle(new Color(150, 150, 0), false, false);
         return styles;
+    }
+
+    /**
+     * Returns the dark default style table.
+     */
+    public static SyntaxStyle[] getDarkDefaultSyntaxStyles() {
+        SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
+
+        // SyntaxStyle constructor params: color, italic?, bold?
+        // All need to be assigned even if not used by language (no gaps in array)
+        styles[Token.NULL] = new SyntaxStyle(Color.black, false, false);
+        styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x00CC66), true, false);
+        styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x990033), true, false);
+        styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0x66CCFF), false, false);
+        styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0x9999FF), false, false);
+        styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0xFF9999), false, false);
+        styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x00CC66), false, false);
+        styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x00CC66), false, false);
+        styles[Token.LABEL] = new SyntaxStyle(new Color(0xFFCC66), true, false);
+        styles[Token.OPERATOR] = new SyntaxStyle(Color.black, false, true);
+        styles[Token.INVALID] = new SyntaxStyle(Color.red, false, false);
+        styles[Token.MACRO_ARG] = new SyntaxStyle(new Color(150, 150, 0), false, false);
+        return styles;
+    }
+
+    /**
+     * sets the default style table to the dark default
+     */
+    public static void setDarkDefaultStyles() {
+        defaultStyles = getDarkDefaultSyntaxStyles();
+    }
+
+    public static void setLightDefaultStyles() {
+        defaultStyles = getLightDefaultSyntaxStyles();
     }
 
     /**
