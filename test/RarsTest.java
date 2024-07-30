@@ -92,7 +92,7 @@ public class RarsTest {
 
     public static String run(String path, Program p){
         int[] errorlines = null;
-        String stdin = "", stdout = "", stderr ="";
+        String stdin = "", stdout = "", stderr ="", errorMessage = "";
         ArrayList<String> programArgumentList = null;
         int exitCode = 0;
         // TODO: better config system
@@ -118,6 +118,8 @@ public class RarsTest {
                 } else if (line.startsWith("#args:")) {
                     String args = line.replaceFirst("#args:", "");
                     programArgumentList = new ProgramArgumentList(args).getProgramArgumentList();
+                } else if (line.startsWith("#error:")) {
+                    errorMessage = line.replaceFirst("#error:", "");
                 }
                 line = br.readLine();
             }
@@ -164,7 +166,9 @@ public class RarsTest {
             }
             return "";
         } catch (SimulationException se){
-            return "Crashed while executing " + path;
+            if (se.error().getMessage().equals(errorMessage))
+                    return "";
+            return "Crashed while executing " + path + "; " + se.error().generateReport();
         }
     }
 
