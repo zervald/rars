@@ -50,6 +50,10 @@ public class ProgramArgumentList {
 
     private ArrayList<String> programArgumentList;
 
+    public ArrayList<String> getProgramArgumentList() {
+        return programArgumentList;
+    }
+
     /**
      * Constructor that parses string to produce list.  Delimiters
      * are the default Java StringTokenizer delimiters (space, tab,
@@ -117,7 +121,6 @@ public class ProgramArgumentList {
             }
         }
     }
-
 
     //////////////////////////////////////////////////////////////////////
     // Place any program arguments into memory and registers

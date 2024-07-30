@@ -2,6 +2,7 @@ import rars.*;
 import rars.api.Options;
 import rars.api.Program;
 import rars.riscv.*;
+import rars.simulator.ProgramArgumentList;
 import rars.simulator.Simulator;
 
 import java.io.*;
@@ -92,6 +93,7 @@ public class RarsTest {
     public static String run(String path, Program p){
         int[] errorlines = null;
         String stdin = "", stdout = "", stderr ="";
+        ArrayList<String> programArgumentList = null;
         int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
@@ -113,6 +115,9 @@ public class RarsTest {
                     stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#exit:")) {
                     exitCode = Integer.parseInt(line.replaceFirst("#exit:", ""));
+                } else if (line.startsWith("#args:")) {
+                    String args = line.replaceFirst("#args:", "");
+                    programArgumentList = new ProgramArgumentList(args).getProgramArgumentList();
                 }
                 line = br.readLine();
             }
@@ -126,7 +131,7 @@ public class RarsTest {
             if(errorlines != null){
                 return "Expected assembly error, but successfully assembled " + path;
             }
-            p.setup(null,stdin);
+            p.setup(programArgumentList, stdin);
             Simulator.Reason r = p.simulate();
             if(r != Simulator.Reason.NORMAL_TERMINATION){
                 return "Ended abnormally " + r + " while executing " + path;
