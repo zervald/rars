@@ -1,6 +1,5 @@
 out
 .idea
-.settings
 *.class
 
 # Build products
@@ -18,6 +17,9 @@ target/
 .classpath
 .project
 examples/riscv
+
+# Emacs
+.settings
 
 # MacOS
 .DS_Store
