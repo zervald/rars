@@ -2,18 +2,19 @@ import rars.*;
 import rars.api.Options;
 import rars.api.Program;
 import rars.riscv.*;
+import rars.simulator.ProgramArgumentList;
 import rars.simulator.Simulator;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Test {
+public class RarsTest {
     boolean success = true;
     StringBuilder total = new StringBuilder("\n");
 
     public static void main(String[] args){
-        Test self = new Test();
+        RarsTest self = new RarsTest();
         if (args.length != 0) {
             Program p = self.setupProgram(true);
             for (String arg : args) {
@@ -32,7 +33,7 @@ public class Test {
         }
         self.checkPrograms();
         self.checkBinary();
-        self.checkPsuedo();
+        self.checkPseudo();
         if (!self.success) {
             System.exit(1);
         }
@@ -91,7 +92,8 @@ public class Test {
 
     public static String run(String path, Program p){
         int[] errorlines = null;
-        String stdin = "", stdout = "", stderr ="";
+        String stdin = "", stdout = "", stderr ="", errorMessage = "", exitReason = "";
+        ArrayList<String> programArgumentList = null;
         int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
@@ -112,7 +114,17 @@ public class Test {
                 } else if (line.startsWith("#stderr:")) {
                     stderr = line.replaceFirst("#stderr:", "").replaceAll("\\\\n","\n").trim();
                 } else if (line.startsWith("#exit:")) {
-                    exitCode = Integer.parseInt(line.replaceFirst("#exit:", ""));
+                    exitReason = line.replaceFirst("#exit:", "");
+                    try {
+                        exitCode = Integer.parseInt(exitReason);
+                    } catch (NumberFormatException nfe) {
+                        exitCode = -1;
+                    }
+                } else if (line.startsWith("#args:")) {
+                    String args = line.replaceFirst("#args:", "");
+                    programArgumentList = new ProgramArgumentList(args).getProgramArgumentList();
+                } else if (line.startsWith("#error:")) {
+                    errorMessage = line.replaceFirst("#error:", "");
                 }
                 line = br.readLine();
             }
@@ -126,10 +138,14 @@ public class Test {
             if(errorlines != null){
                 return "Expected assembly error, but successfully assembled " + path;
             }
-            p.setup(null,stdin);
+            p.setup(programArgumentList, stdin);
             Simulator.Reason r = p.simulate();
             if(r != Simulator.Reason.NORMAL_TERMINATION){
-                return "Ended abnormally " + r + " while executing " + path;
+                if (r.toString().toLowerCase().equals(exitReason)) {
+                    return "";
+                } else {
+                    return "Ended abnormally " + r + " while executing " + path;
+                }
             }else{
                 if(p.getExitCode() != exitCode) {
                     return "Final exit code was wrong for " + path + "\n Expected "+exitCode+" got "+p.getExitCode();
@@ -159,7 +175,9 @@ public class Test {
             }
             return "";
         } catch (SimulationException se){
-            return "Crashed while executing " + path;
+            if (se.error().getMessage().equals(errorMessage))
+                    return "";
+            return "Crashed while executing " + path + "; " + se.error().generateReport();
         }
     }
 
@@ -247,7 +265,7 @@ public class Test {
         }
     }
 
-    public void checkPsuedo(){
+    public void checkPseudo(){
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 500;
