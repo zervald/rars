@@ -1,9 +1,12 @@
 out
 .idea
+.settings
 *.class
 
 # Build products
 build
+tmp
+flatlaf-3.2.jar
 rars.jar
 rars-flatlaf.jar
 src/Version.properties
