@@ -1,8 +1,6 @@
 package rars.riscv.syscalls;
 
-import rars.ExitingException;
-import rars.Globals;
-import rars.ProgramStatement;
+import rars.*;
 import rars.riscv.AbstractSyscall;
 import rars.riscv.hardware.AddressErrorException;
 import rars.riscv.hardware.RegisterFile;
@@ -53,7 +51,7 @@ public class SyscallReadString extends AbstractSyscall {
                 "a0 = address of input buffer<br>a1 = size of the buffer", "N/A");
     }
 
-    public void simulate(ProgramStatement statement) throws ExitingException {
+    public void simulate(ProgramStatement statement) throws SimulationException {
         String inputString = "";
         int buf = RegisterFile.getValue("a0"); // buf addr
         int maxLength = RegisterFile.getValue("a1") - 1;
@@ -64,6 +62,8 @@ public class SyscallReadString extends AbstractSyscall {
             addNullByte = false;
         }
         inputString = SystemIO.readString(this.getNumber(), maxLength);
+        if (inputString == null)
+            throw new CancelException();
 
         byte[] utf8BytesList = inputString.getBytes(StandardCharsets.UTF_8);
         // TODO: allow for utf-8 encoded strings

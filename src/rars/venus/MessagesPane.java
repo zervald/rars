@@ -518,12 +518,16 @@ public class MessagesPane extends JPanel {
         if (lock) {
             Globals.memoryAndRegistersLock.unlock();
         }
-        JOptionPane pane = new JOptionPane(prompt, JOptionPane.QUESTION_MESSAGE, JOptionPane.DEFAULT_OPTION);
+        JOptionPane pane = new JOptionPane(prompt, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         pane.setWantsInput(true);
         JDialog dialog = pane.createDialog(Globals.getGui(), "Keyboard Input");
         dialog.setVisible(true);
         input = (String) pane.getInputValue();
-        this.postRunMessage(Globals.userInputAlert + input + "\n");
+        if (input == JOptionPane.UNINITIALIZED_VALUE) {
+            input = null;
+        } else {
+            this.postRunMessage(Globals.userInputAlert + input + "\n");
+        }
         if (lock) {
             Globals.memoryAndRegistersLock.lock();
         }
