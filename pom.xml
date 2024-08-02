@@ -108,8 +108,79 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.panteleyev</groupId>
+				<artifactId>jpackage-maven-plugin</artifactId>
+				<version>1.6.4</version>
+
+				<configuration>
+					<input>${project.basedir}/target</input>
+					<name>RARS</name>
+					<appVersion>1.6</appVersion>
+					<icon>${icon.path}</icon>
+					<vendor>Privat</vendor>
+					<mainClass>rars.Launch</mainClass>
+					<mainJar>
+						${project.build.finalName}-jar-with-dependencies.jar
+					</mainJar>
+					<destination>${project.basedir}/target</destination>
+					<copyright>MIT License</copyright>
+				</configuration>
+
+				<executions>
+					<execution>
+						<id>package-${os.family}</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jpackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile> <!-->MacOs Profile<-->
+			<id>mac</id>
+			<activation>
+				<os>
+					<family>Mac</family>
+				</os>
+			</activation>
+			<properties>
+				<icon.path>${project.basedir}/res/riscvColor.icns</icon.path>
+				<os.family>Mac</os.family>
+			</properties>
+		</profile>
+		<profile> <!-->Windows Profile<-->
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<icon.path>${project.basedir}/res/riscvColor.ico</icon.path>
+				<os.family>Windows</os.family>
+			</properties>
+		</profile>
+		<profile> <!-->Linux Profile<-->
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>Unix</family>
+					<name>Linux</name>
+				</os>
+			</activation>
+			<properties>
+				<icon.path>${project.basedir}/res/riscvColor.png</icon.path>
+				<os.family>Linux</os.family>
+			</properties>
+		</profile>
+	</profiles>
+
 	<reporting>
 		<plugins>
 			<plugin>
