@@ -81,6 +81,8 @@ public class SystemIO {
     public static final int EOF = -1;
     /** the character is not a printable ASCII  */
     public static final int NOTASCII = -2;
+    /** Cancel requested */
+    public static final int CANCEL = -3;
 
     /**
      * Implements syscall to read an integer value.
@@ -93,6 +95,7 @@ public class SystemIO {
     public static long readInteger(int serviceNumber) {
         String input = readStringInternal("0", "Enter an integer value (syscall " + serviceNumber + ")", -1);
         // Client is responsible for catching NumberFormatException
+        if (input == null) throw new NumberFormatException("Cancel");
         return Long.parseLong(input.trim());
     }
 
@@ -132,6 +135,7 @@ public class SystemIO {
      */
     public static float readFloat(int serviceNumber) {
         String input = readStringInternal("0", "Enter a float value (syscall " + serviceNumber + ")", -1);
+        if (input == null) throw new NumberFormatException("Cancel");
         return Float.parseFloat(input.trim());
     }
 
@@ -145,6 +149,7 @@ public class SystemIO {
      */
     public static double readDouble(int serviceNumber) {
         String input = readStringInternal("0", "Enter a Double value (syscall " + serviceNumber + ")", -1);
+        if (input == null) throw new NumberFormatException("Cancel");
         return Double.parseDouble(input.trim());
     }
 
@@ -174,6 +179,9 @@ public class SystemIO {
     public static String readString(int serviceNumber, int maxLength) {
         String input = readStringInternal("", "Enter a string of maximum length " + maxLength
                 + " (syscall " + serviceNumber + ")", maxLength);
+        if (input == null) {
+            return null;
+        }
         if (input.endsWith("\n")) {
             input = input.substring(0, input.length() - 1);
         }
@@ -199,7 +207,9 @@ public class SystemIO {
         // Need a popup?
         if (Globals.getGui() != null && Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
             String input = readStringInternal("0", "Enter a character value (syscall " + serviceNumber + ")", 1);
-            if (input.length()>0)
+            if (input == null)
+                return CANCEL;
+            else if (input.length()>0)
                 returnValue = input.getBytes(StandardCharsets.UTF_8) [0] & 0xFF; // truncate
             else
                 returnValue = EOF; // assume EOF on empty string
