@@ -493,6 +493,10 @@ public class Simulator extends Observable {
                             Globals.program.getBackStepper().addDoNothing(pc);
                         }
                         ebreak = true;
+                    } catch (CancelException b) {
+                        // Reset the pc in front of the instruction
+                        RegisterFile.setProgramCounter(pc);
+                        ebreak = true;
                     } catch (WaitException w) {
                         if (Globals.getSettings().getBackSteppingEnabled()) {
                             Globals.program.getBackStepper().addDoNothing(pc);
