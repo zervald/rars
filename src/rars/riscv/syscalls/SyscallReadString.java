@@ -62,8 +62,6 @@ public class SyscallReadString extends AbstractSyscall {
             addNullByte = false;
         }
         inputString = SystemIO.readString(this.getNumber(), maxLength);
-        if (inputString == null)
-            throw new CancelException();
 
         byte[] utf8BytesList = inputString.getBytes(StandardCharsets.UTF_8);
         // TODO: allow for utf-8 encoded strings

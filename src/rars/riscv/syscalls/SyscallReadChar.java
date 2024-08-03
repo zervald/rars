@@ -42,9 +42,6 @@ public class SyscallReadChar extends AbstractSyscall {
 
     public void simulate(ProgramStatement statement) throws SimulationException {
         int character = SystemIO.readChar(this.getNumber());
-        if (character == SystemIO.CANCEL) {
-            throw new CancelException();
-        }
         if (character == SystemIO.NOTASCII) {
             throw new ExitingException(statement,
                     "invalid or non printable ASCII input (syscall " + this.getNumber() + ")");

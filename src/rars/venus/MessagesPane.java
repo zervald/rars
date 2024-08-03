@@ -1,10 +1,12 @@
 package rars.venus;
 
+import rars.CancelException;
 import rars.ErrorList;
 import rars.Globals;
 import rars.Settings;
 import rars.simulator.ProgramArgumentList;
 import rars.simulator.Simulator;
+import rars.util.SystemIO;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -512,7 +514,7 @@ public class MessagesPane extends JPanel {
      * @param prompt Prompt to display to the user.
      * @return User input.
      */
-    public String getInputString(String prompt) {
+    public String getInputString(String prompt) throws CancelException {
         String input;
         boolean lock = Globals.memoryAndRegistersLock.isHeldByCurrentThread();
         if (lock) {
@@ -523,13 +525,13 @@ public class MessagesPane extends JPanel {
         JDialog dialog = pane.createDialog(Globals.getGui(), "Keyboard Input");
         dialog.setVisible(true);
         input = (String) pane.getInputValue();
-        if (input == JOptionPane.UNINITIALIZED_VALUE) {
-            input = null;
-        } else {
-            this.postRunMessage(Globals.userInputAlert + input + "\n");
-        }
         if (lock) {
             Globals.memoryAndRegistersLock.lock();
+        }
+        if (input == JOptionPane.UNINITIALIZED_VALUE) {
+            throw new CancelException();
+        } else {
+            this.postRunMessage(Globals.userInputAlert + input + "\n");
         }
         return input;
     }
