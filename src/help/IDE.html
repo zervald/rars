@@ -27,6 +27,32 @@ on some features.
         as soon as it is opened. See the Settings menu.
     </li>
     <li>
+        <b>Message Areas</b>: There are three tabbed message areas at the bottom of the screen. <br> The <i>Messages</i>
+        tab is used for messages such as assembly or runtime errors and informational messages. You can click on
+        assembly error messages to select the corresponding line of code in the editor. <br> The <i>Run I/O</i> tab is
+        used at runtime for displaying console output and entering console input. In that tab, you have three options to
+        choose from.
+        <ul>
+            <li>Popups : You enter console input into a pop-up dialog that echoes to the message area. The output also
+                appears in that message area.
+            </li>
+            <li>Interactive : You enter console input directly into the message area. The output also appears in the
+                same message area.
+            </li>
+            <li>Batch : The message area is separated into two windows. The first one (left) takes the whole input that
+                you want for the program execution. The second one (right) will show the output. During execution, the
+                input will be read from the first window, character by character, as if you entered those manually one
+                by one in the interactive option when the program was asking for an entry. You have to be careful to
+                respect how the input is taken by the program. For example, Syscall ReadInt reads until there is a <tt>'\n'</tt>
+                to terminate the entry, so you have to put a line break after the number for that entry.
+            </li>
+        </ul>
+        The <i>Program Arguments</i> tab is used to provide arguments to the program. If that message area is used, a0
+        (argc) will then be initialised to the number of arguments provided, a1 (argv) will contain the address of an
+        argv array (the argv array is of size argc). This array will contain pointers to Strings corresponding to each
+        argument provided.
+    </li>
+    <li>
         <b>Registers</b>: Registers are displayed at all times, even when you are editing and not running a program.
         While writing your program, this serves as a useful reference for register names and their conventional uses
         (hover mouse over the register name to see tool tips). There are three register tabs: the Register File (integer
