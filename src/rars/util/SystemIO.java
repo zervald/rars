@@ -1,7 +1,9 @@
 package rars.util;
 
+import rars.CancelException;
 import rars.Globals;
 import rars.Settings;
+import rars.SimulationException;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -90,13 +92,14 @@ public class SystemIO {
      * @return int value corresponding to user input
      */
 
-    public static long readInteger(int serviceNumber) {
+    public static long readInteger(int serviceNumber) throws CancelException {
         String input = readStringInternal("0", "Enter an integer value (syscall " + serviceNumber + ")", -1);
         // Client is responsible for catching NumberFormatException
+        if (input == null) throw new CancelException();
         return Long.parseLong(input.trim());
     }
 
-    private static String readStringInternal(String init, String prompt, int maxlength) {
+    private static String readStringInternal(String init, String prompt, int maxlength) throws CancelException {
         String input = init;
         if (Globals.getGui() == null) {
             try {
@@ -130,7 +133,7 @@ public class SystemIO {
      * @return float value corresponding to user input
      * Feb 14 2005 Ken Vollmar
      */
-    public static float readFloat(int serviceNumber) {
+    public static float readFloat(int serviceNumber) throws CancelException {
         String input = readStringInternal("0", "Enter a float value (syscall " + serviceNumber + ")", -1);
         return Float.parseFloat(input.trim());
     }
@@ -143,7 +146,7 @@ public class SystemIO {
      * @return double value corresponding to user input
      * Feb 14 2005 Ken Vollmar
      */
-    public static double readDouble(int serviceNumber) {
+    public static double readDouble(int serviceNumber) throws CancelException {
         String input = readStringInternal("0", "Enter a Double value (syscall " + serviceNumber + ")", -1);
         return Double.parseDouble(input.trim());
     }
@@ -171,7 +174,7 @@ public class SystemIO {
      * @param maxLength     the maximum string length
      * @return the entered string, truncated to maximum length if necessary
      */
-    public static String readString(int serviceNumber, int maxLength) {
+    public static String readString(int serviceNumber, int maxLength) throws CancelException {
         String input = readStringInternal("", "Enter a string of maximum length " + maxLength
                 + " (syscall " + serviceNumber + ")", maxLength);
         if (input.endsWith("\n")) {
@@ -193,7 +196,7 @@ public class SystemIO {
      * @param serviceNumber the number assigned to Read Char syscall (default 12)
      * @return int value with lowest byte corresponding to user input, EOF on end of data, or NOTASCII on invalid ASCII character.
      */
-    public static int readChar(int serviceNumber) {
+    public static int readChar(int serviceNumber) throws CancelException {
         int returnValue;
 
         // Need a popup?
