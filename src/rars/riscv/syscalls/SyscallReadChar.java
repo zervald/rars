@@ -2,8 +2,6 @@ package rars.riscv.syscalls;
 
 import rars.*;
 import rars.riscv.AbstractSyscall;
-import rars.riscv.Instruction;
-import rars.riscv.hardware.Register;
 import rars.riscv.hardware.RegisterFile;
 import rars.util.SystemIO;
 
