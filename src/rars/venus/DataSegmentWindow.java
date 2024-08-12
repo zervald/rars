@@ -536,31 +536,12 @@ public class DataSegmentWindow extends JInternalFrame implements Observer {
                     long datum = Globals.memory.getRaw(address, bytesPerValue);
                     dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(datum, valueBase, bytesPerValue), row, column);
                 } catch (AddressErrorException aee) {
-                    // Bit of a hack here.  Memory will throw an exception if you try to read directly from text segment when the
-                    // self-modifying code setting is disabled.  This is a good thing if it is the executing MIPS program trying to
-                    // read.  But not a good thing if it is the DataSegmentDisplay trying to read.  I'll trick Memory by
-                    // temporarily enabling the setting as "non persistent" so it won't write through to the registry.
-                    if (Memory.inTextSegment(address)) {
-                        long displayValue = 0;
-                        if (!Globals.getSettings().getBooleanSetting(Settings.Bool.SELF_MODIFYING_CODE_ENABLED)) {
-                            Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.SELF_MODIFYING_CODE_ENABLED, true);
-                            try {
-                                displayValue = Globals.memory.getRaw(address, bytesPerValue);
-                            } catch (AddressErrorException e) {
-                                // Still got an exception?  Doesn't seem possible but if we drop through it will write default value 0.
-                            }
-                            Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.SELF_MODIFYING_CODE_ENABLED, false);
-                        }
-                        dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(displayValue, valueBase, bytesPerValue), row, column);
-                    }
                     // Bug Fix: the following line of code disappeared during the release 4.4 mods, but is essential to
                     // display values of 0 for valid MIPS addresses that are outside the MARS simulated address space.  Such
                     // addresses cause an AddressErrorException.  Prior to 4.4, they performed this line of code unconditionally.
                     // With 4.4, I added the above IF statement to work with the text segment but inadvertently removed this line!
                     // Now it becomes the "else" part, executed when not in text segment.  DPS 8-July-2014.
-                    else {
-                        dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase, bytesPerValue), row, column);
-                    }
+                    dataModel.setDisplayAndModelValueAt(NumberDisplayBaseChooser.formatNumber(0, valueBase, bytesPerValue), row, column);
                 }
                 address += bytesPerValue;
             }
