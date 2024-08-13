@@ -60,6 +60,10 @@ public class Program {
         simulation = new Memory();
     }
 
+    public Options getOptions() {
+        return set;
+    }
+
     /**
      * Assembles from a list of files
      *
