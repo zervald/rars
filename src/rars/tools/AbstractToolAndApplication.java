@@ -76,8 +76,6 @@ public abstract class AbstractToolAndApplication extends JFrame implements Tool,
 
     // Some GUI settings
     private EmptyBorder emptyBorder = new EmptyBorder(4, 4, 4, 4);
-    private Color backgroundColor = Color.WHITE;
-
 
     private int lowMemoryAddress = Memory.dataSegmentBaseAddress;
     private int highMemoryAddress = Memory.stackBaseAddress;
@@ -375,7 +373,6 @@ public abstract class AbstractToolAndApplication extends JFrame implements Tool,
         operationStatusMessages = new MessageField("No file open.");
         operationStatusMessages.setColumns(40);
         operationStatusMessages.setMargin(new Insets(0, 3, 0, 3)); //(top, left, bottom, right)
-        operationStatusMessages.setBackground(backgroundColor);
         operationStatusMessages.setFocusable(false);
         operationStatusMessages.setToolTipText("Display operation status messages");
 

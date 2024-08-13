@@ -60,7 +60,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
     // Some GUI settings
     private EmptyBorder emptyBorder = new EmptyBorder(4, 4, 4, 4);
     private Font countFonts = new Font("Times", Font.BOLD, 12);
-    private Color backgroundColor = Color.WHITE;
 
     // Values for Combo Boxes
 
@@ -268,7 +267,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
 
         visualizationUnitPixelWidthSelector = new JComboBox<>(visualizationUnitPixelWidthChoices);
         visualizationUnitPixelWidthSelector.setEditable(false);
-        visualizationUnitPixelWidthSelector.setBackground(backgroundColor);
         visualizationUnitPixelWidthSelector.setSelectedIndex(defaultVisualizationUnitPixelWidthIndex);
         visualizationUnitPixelWidthSelector.setToolTipText("Width in pixels of rectangle representing memory word");
         visualizationUnitPixelWidthSelector.addActionListener(
@@ -281,7 +279,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
                 });
         visualizationUnitPixelHeightSelector = new JComboBox<>(visualizationUnitPixelHeightChoices);
         visualizationUnitPixelHeightSelector.setEditable(false);
-        visualizationUnitPixelHeightSelector.setBackground(backgroundColor);
         visualizationUnitPixelHeightSelector.setSelectedIndex(defaultVisualizationUnitPixelHeightIndex);
         visualizationUnitPixelHeightSelector.setToolTipText("Height in pixels of rectangle representing memory word");
         visualizationUnitPixelHeightSelector.addActionListener(
@@ -294,7 +291,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
                 });
         visualizationPixelWidthSelector = new JComboBox<>(displayAreaPixelWidthChoices);
         visualizationPixelWidthSelector.setEditable(false);
-        visualizationPixelWidthSelector.setBackground(backgroundColor);
         visualizationPixelWidthSelector.setSelectedIndex(defaultDisplayWidthIndex);
         visualizationPixelWidthSelector.setToolTipText("Total width in pixels of display area");
         visualizationPixelWidthSelector.addActionListener(
@@ -309,7 +305,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
                 });
         visualizationPixelHeightSelector = new JComboBox<>(displayAreaPixelHeightChoices);
         visualizationPixelHeightSelector.setEditable(false);
-        visualizationPixelHeightSelector.setBackground(backgroundColor);
         visualizationPixelHeightSelector.setSelectedIndex(defaultDisplayHeightIndex);
         visualizationPixelHeightSelector.setToolTipText("Total height in pixels of display area");
         visualizationPixelHeightSelector.addActionListener(
@@ -324,7 +319,6 @@ public class BitmapDisplay extends AbstractToolAndApplication {
                 });
         displayBaseAddressSelector = new JComboBox<>(displayBaseAddressChoices);
         displayBaseAddressSelector.setEditable(false);
-        displayBaseAddressSelector.setBackground(backgroundColor);
         displayBaseAddressSelector.setSelectedIndex(defaultBaseAddressIndex);
         displayBaseAddressSelector.setToolTipText("Base address for display area (upper left corner)");
         displayBaseAddressSelector.addActionListener(
