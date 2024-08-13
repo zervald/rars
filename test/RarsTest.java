@@ -53,6 +53,7 @@ public class RarsTest {
     public void checkPrograms() {
 
         Program p = setupProgram(false);
+        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests", p);
 
