@@ -58,6 +58,7 @@ public class Assembler {
     // macro definition segment
     private int externAddress;
     private boolean autoAlign;
+    private boolean instructionInDataWarningGiven;
     private Directives dataDirective;
     private RISCVprogram fileCurrentlyBeingAssembled;
     private TokenList globalDeclarationList;
@@ -206,8 +207,24 @@ public class Assembler {
                 if (errors.errorsOccurred()) {
                     throw new AssemblyException(errors);
                 }
+                // add warning if instructions were written in .data
+                if (Memory.inDataSegment(statement.getAddress()) && !instructionInDataWarningGiven) {
+                    errors.add(new ErrorMessage(true, statement.getSourceProgram(), statement.getSourceLine(),
+                            statement.getStrippedTokenList().get(0).getStartPos(),
+                            "Instructions in .data !"));
+                    instructionInDataWarningGiven = true;
+                }
                 if (statement.getInstruction() instanceof BasicInstruction) {
-                    machineList.add(statement);
+                    //if statement is in .text, add to machineList
+                    if (Memory.inTextSegment(statement.getAddress()))
+                        machineList.add(statement);
+                    //if statement is in .data, write instruction code in data segment of memory
+                    else if (Memory.inDataSegment(statement.getAddress())) {
+                        dataAddress.set(statement.getAddress());
+                        statement.buildMachineStatementFromBasicStatement(errors);
+                        writeToDataSegment(statement.getBinaryStatement(), Instruction.INSTRUCTION_LENGTH,
+                                statement.getStrippedTokenList().get(0), errors);
+                    }
                     textSegmentLines.add(statement);
                 } else if (statement.getInstruction() != null) {
                     // It is a pseudo-instruction:
@@ -265,14 +282,29 @@ public class Assembler {
                         Instruction instr = OperandFormat.bestOperandMatch(newTokenList,
                                 instrMatches);
                         // Only first generated instruction is linked to original source
-                        ProgramStatement ps = new ProgramStatement(
-                                this.fileCurrentlyBeingAssembled,
-                                (instrNumber == 0) ? statement.getSource() : "", newTokenList,
-                                newTokenList, instr, textAddress.get(), statement.getSourceLine());
-                        textAddress.increment(Instruction.INSTRUCTION_LENGTH);
-                        ps.buildBasicStatementFromBasicInstruction(errors);
-                        machineList.add(ps);
-                        textSegmentLines.add(ps);
+                        // Once again, need refactoring, should treat data and text segment the same way
+                        // If in text segment, add current instruction to machineList
+                        if (Memory.inTextSegment(statement.getAddress())) {
+                            ProgramStatement ps = new ProgramStatement(
+                                    this.fileCurrentlyBeingAssembled,
+                                    (instrNumber == 0) ? statement.getSource() : "", newTokenList,
+                                    newTokenList, instr, textAddress.get(), statement.getSourceLine());
+                            textAddress.increment(Instruction.INSTRUCTION_LENGTH);
+                            ps.buildBasicStatementFromBasicInstruction(errors);
+                            machineList.add(ps);
+                            textSegmentLines.add(ps);
+                        // If in data segment, write instruction code in memory
+                        } else if (Memory.inDataSegment(statement.getAddress())) {
+                            ProgramStatement ps = new ProgramStatement(
+                                    this.fileCurrentlyBeingAssembled,
+                                    (instrNumber == 0) ? statement.getSource() : "", newTokenList,
+                                    newTokenList, instr, dataAddress.get(), statement.getSourceLine());
+                            ps.buildBasicStatementFromBasicInstruction(errors);
+                            ps.buildMachineStatementFromBasicStatement(errors);
+                            writeToDataSegment(ps.getBinaryStatement(), Instruction.INSTRUCTION_LENGTH,
+                                    ps.getStrippedTokenList().get(0), errors); //also increments dataAddress
+                            textSegmentLines.add(ps);
+                        }
                     } // end of FOR loop, repeated for each template in list.
                 } else {
                     textSegmentLines.add(statement); //not an instruction
@@ -476,35 +508,36 @@ public class Assembler {
             return null;
         }
 
-        // If we are in the text segment, the variable "token" must now refer to
-        // an OPERATOR
-        // token. If not, it is either a syntax error or the specified operator
-        // is not
-        // yet implemented.
-        if (!this.inDataSegment) {
-            ArrayList<Instruction> instrMatches = this.matchInstruction(token);
-            if (instrMatches == null)
-                return ret;
-            // OK, we've got an operator match, let's check the operands.
-            Instruction inst = OperandFormat.bestOperandMatch(tokens, instrMatches);
-            // Here's the place to flag use of extended (pseudo) instructions
-            // when setting disabled.
-            if (inst instanceof ExtendedInstruction && !extendedAssemblerEnabled) {
-                errors.add(new ErrorMessage(token.getSourceProgram(), token.getSourceLine(),
-                        token.getStartPos(),
-                        "Extended (pseudo) instruction or format not permitted.  See Settings."));
-            }
-            if (OperandFormat.tokenOperandMatch(tokens, inst, errors)) {
-                programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source,
-                        tokenList, tokens, inst, textAddress.get(), sourceLineNumber);
-                // instruction length is 4 for all basic instruction, varies for extended instruction
-                // Modified to permit use of compact expansion if address fits
-                // in 15 bits. DPS 4-Aug-2009
+        // If we are here, the variable "token" must now refer to an OPERATOR token.
+        // If not, it is either a syntax error or the specified operator is not yet implemented.
+        ArrayList<Instruction> instrMatches = this.matchInstruction(token);
+        if (instrMatches == null)
+            return ret;
+        // OK, we've got an operator match, let's check the operands.
+        Instruction inst = OperandFormat.bestOperandMatch(tokens, instrMatches);
+        // Here's the place to flag use of extended (pseudo) instructions
+        // when setting disabled.
+        if (inst instanceof ExtendedInstruction && !extendedAssemblerEnabled) {
+            errors.add(new ErrorMessage(token.getSourceProgram(), token.getSourceLine(),
+                    token.getStartPos(),
+                    "Extended (pseudo) instruction or format not permitted.  See Settings."));
+        }
+        if (OperandFormat.tokenOperandMatch(tokens, inst, errors)) {
+            // need refactoring, shouldn't have to treat this with two cases
+            if (!this.inDataSegment) {
+                programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source, tokenList,
+                        tokens, inst, textAddress.get(), sourceLineNumber);
                 int instLength = inst.getInstructionLength();
                 textAddress.increment(instLength);
                 ret.add(programStatement);
-                return ret;
+            } else {
+                programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source, tokenList,
+                        tokens, inst, dataAddress.get(), sourceLineNumber);
+                int instLength = inst.getInstructionLength();
+                dataAddress.increment(instLength);
+                ret.add(programStatement);
             }
+            return ret;
         }
         return null;
     } // parseLine()
