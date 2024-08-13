@@ -1362,7 +1362,7 @@ public class Settings extends Observable {
             }
 
         for (int i = 0; i < colorSettingsValues.length; i++)
-            if (colorSettingsValues[i].equals(oppositeDefaultColorSettingsValues[i])) {
+            if (colorSettingsValues[i].equals(oppositeDefaultColorSettingsValues[i]) || (colorSettingsValues[i].equals("0x00000000") && oppositeDefaultColorSettingsValues[i].equals("0"))) {
                 colorSettingsValues[i] = newDefaultColorSettingsValues[i];
             }
     }
