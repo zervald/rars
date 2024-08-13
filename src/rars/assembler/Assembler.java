@@ -58,6 +58,7 @@ public class Assembler {
     // macro definition segment
     private int externAddress;
     private boolean autoAlign;
+    private boolean instructionInDataWarningGiven;
     private Directives dataDirective;
     private RISCVprogram fileCurrentlyBeingAssembled;
     private TokenList globalDeclarationList;
@@ -205,6 +206,13 @@ public class Assembler {
                     statement.buildBasicStatementFromBasicInstruction(errors);
                 if (errors.errorsOccurred()) {
                     throw new AssemblyException(errors);
+                }
+                // add warning if instructions were written in .data
+                if (Memory.inDataSegment(statement.getAddress()) && !instructionInDataWarningGiven) {
+                    errors.add(new ErrorMessage(true, statement.getSourceProgram(), statement.getSourceLine(),
+                            statement.getStrippedTokenList().get(0).getStartPos(),
+                            "Instructions in .data !"));
+                    instructionInDataWarningGiven = true;
                 }
                 if (statement.getInstruction() instanceof BasicInstruction) {
                     //if statement is in .text, add to machineList
