@@ -1,6 +1,6 @@
 package rars.tools;
 
-import rars.Globals;
+import rars.*;
 import rars.riscv.hardware.AccessNotice;
 import rars.riscv.hardware.FloatingPointRegisterFile;
 import rars.riscv.hardware.Register;
@@ -73,9 +73,8 @@ public class FloatRepresentation extends AbstractToolAndApplication {
     private static final Font binaryDisplayFont = new Font("Courier", Font.PLAIN, 18);
     private static final Font decimalDisplayFont = new Font("Courier", Font.PLAIN, 18);
     private static final Color hexDisplayColor = Color.red;
-    private static final Color binaryDisplayColor = Color.black;
-    private static final Color decimalDisplayColor = Color.blue;
-    private static final String expansionFontTag = "<font size=\"+1\" face=\"Courier\" color=\"#000000\">";
+    private static final String expansionFontTagLight = "<font size=\"+1\" face=\"Courier\" color=\"#000000\">";
+    private static final String expansionFontTagDark = "<font size=\"+1\" face=\"Courier\" color=\"#bbbbbb\">";
     private static final String instructionFontTag = "<font size=\"+0\" face=\"Verdana, Arial, Helvetica\" color=\"#000000\">";
     private static final int exponentBias = 127;  // 32 bit floating point exponent bias
 
@@ -222,7 +221,6 @@ public class FloatRepresentation extends AbstractToolAndApplication {
 
         binarySignDisplay = new JTextField(defaultBinarySign, maxLengthBinarySign + 1);
         binarySignDisplay.setFont(binaryDisplayFont);
-        binarySignDisplay.setForeground(binaryDisplayColor);
         binarySignDisplay.setHorizontalAlignment(JTextField.RIGHT);
         binarySignDisplay.setToolTipText("The sign bit");
         binarySignDisplay.setEditable(true);
@@ -230,7 +228,6 @@ public class FloatRepresentation extends AbstractToolAndApplication {
 
         binaryExponentDisplay = new JTextField(defaultBinaryExponent, maxLengthBinaryExponent + 1);
         binaryExponentDisplay.setFont(binaryDisplayFont);
-        binaryExponentDisplay.setForeground(binaryDisplayColor);
         binaryExponentDisplay.setHorizontalAlignment(JTextField.RIGHT);
         binaryExponentDisplay.setToolTipText("" + maxLengthBinaryExponent + "-bit exponent");
         binaryExponentDisplay.setEditable(true);
@@ -238,7 +235,6 @@ public class FloatRepresentation extends AbstractToolAndApplication {
 
         binaryFractionDisplay = new BinaryFractionDisplayTextField(defaultBinaryFraction, maxLengthBinaryFraction + 1);
         binaryFractionDisplay.setFont(binaryDisplayFont);
-        binaryFractionDisplay.setForeground(binaryDisplayColor);
         binaryFractionDisplay.setHorizontalAlignment(JTextField.RIGHT);
         binaryFractionDisplay.setToolTipText("" + maxLengthBinaryFraction + "-bit fraction");
         binaryFractionDisplay.setEditable(true);
@@ -286,7 +282,7 @@ public class FloatRepresentation extends AbstractToolAndApplication {
         // Editable display for decimal version of float value.
         decimalDisplay = new JTextField(defaultDecimal, maxLengthDecimal + 1);
         decimalDisplay.setFont(decimalDisplayFont);
-        decimalDisplay.setForeground(decimalDisplayColor);
+        decimalDisplay.setForeground(Globals.getSettings().getBooleanSetting(Settings.Bool.DARK_MODE_ENABLED)? new Color(0x66,0xCC,0xFF) : Color.blue);
         decimalDisplay.setHorizontalAlignment(JTextField.RIGHT);
         decimalDisplay.setToolTipText("Decimal floating point value");
         decimalDisplay.setMargin(new Insets(0, 0, 0, 0));
@@ -303,11 +299,10 @@ public class FloatRepresentation extends AbstractToolAndApplication {
         JPanel place2 = new JPanel(rightPanelLayout);
         JPanel place3 = new JPanel(rightPanelLayout);
         JPanel place4 = new JPanel(rightPanelLayout);
-
+        String expansionFontTag = Globals.getSettings().getBooleanSetting(Settings.Bool.DARK_MODE_ENABLED) ? expansionFontTagDark : expansionFontTagLight;
         JEditorPane hexExplain = new JEditorPane("text/html", expansionFontTag + "&lt;&nbsp;&nbsp;Hexadecimal representation" + "</font>");
         hexExplain.setEditable(false);
         hexExplain.setFocusable(false);
-        hexExplain.setForeground(Color.black);
         hexExplain.setBackground(place1.getBackground());
         JEditorPane hexToBinExplain = new JEditorPane("text/html", expansionFontTag + "&lt;&nbsp;&nbsp;Each hex digit represents 4 bits" + "</font>");
         hexToBinExplain.setEditable(false);
@@ -533,7 +528,7 @@ public class FloatRepresentation extends AbstractToolAndApplication {
             String stringExponent = Integer.toString(biasedExponent - exponentBias);
             // stringExponent length will range from 1 to 4 (e.g. "0" to "-128") characters.
             // Right-pad with HTML spaces ("&nbsp;") to total length 5 displayed characters.
-            return "<html><head></head><body>" + expansionFontTag
+            return "<html><head></head><body>" + (Globals.getSettings().getBooleanSetting(Settings.Bool.DARK_MODE_ENABLED) ? expansionFontTagDark : expansionFontTagLight)
                     + "-1<sup>" + binaryString.substring(0, maxLengthBinarySign) + "</sup> &nbsp;*&nbsp; 2<sup>"
                     + stringExponent + HTMLspaces.substring(0, (5 - stringExponent.length()) * 6)
                     + "</sup> &nbsp;* &nbsp;"
