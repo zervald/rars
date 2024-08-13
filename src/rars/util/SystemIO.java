@@ -199,8 +199,17 @@ public class SystemIO {
     public static int readChar(int serviceNumber) throws CancelException {
         int returnValue;
 
-        // Need a popup?
-        if (Globals.getGui() != null && Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
+        if (Globals.getGui() == null) {
+            try {
+                //Read the next char from the buffered input reader
+                returnValue = getInputReader().read();
+                if (returnValue == -1)
+                    returnValue = EOF;
+            } catch (IOException e) {
+                returnValue = EOF;
+            }
+        } else if (Globals.getSettings().getBooleanSetting(Settings.Bool.POPUP_SYSCALL_INPUT)) {
+            // Need a popup?
             String input = readStringInternal("0", "Enter a character value (syscall " + serviceNumber + ")", 1);
             if (input.length()>0)
                 returnValue = input.getBytes(StandardCharsets.UTF_8) [0] & 0xFF; // truncate
