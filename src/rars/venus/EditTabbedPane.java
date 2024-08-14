@@ -552,7 +552,7 @@ public class EditTabbedPane extends JTabbedPane {
             // Note: add sequence is significant - last one added becomes default.
             fileFilterList = new ArrayList<>();
             fileFilterList.add(fileChooser.getAcceptAllFileFilter());
-            fileFilterList.add(FilenameFinder.getFileFilter(Globals.fileExtensions, "Assembler Files", true));
+            fileFilterList.add(FilenameFinder.getFileFilter(Globals.fileExtensions, "Assembly Files", true));
             fileFilterCount = 0; // this will trigger fileChooser file filter load in next line
             setChoosableFileFilters();
         }
@@ -561,6 +561,7 @@ public class EditTabbedPane extends JTabbedPane {
          * Launch a file chooser for name of file to open.  Return true if file opened, false otherwise
          */
         private boolean openFile() {
+            fileChooser.updateUI();
             // The fileChooser's list may be rebuilt from the master ArrayList if a new filter
             // has been added by the user.
             setChoosableFileFilters();
