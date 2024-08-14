@@ -1,5 +1,6 @@
 package rars.tools;
 
+import rars.*;
 import rars.riscv.hardware.AccessNotice;
 import rars.riscv.hardware.Memory;
 import rars.riscv.hardware.MemoryAccessNotice;
@@ -64,7 +65,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
     // Some GUI settings
     private EmptyBorder emptyBorder = new EmptyBorder(4, 4, 4, 4);
     private Font countFonts = new Font("Times", Font.BOLD, 12);
-    private Color backgroundColor = Color.WHITE;
 
     // Values for Combo Boxes
 
@@ -93,7 +93,7 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
     // This array of (count,color) pairs must be kept sorted! count is low end of subrange.
     // This array will grow if user adds colors at additional counter points (see below).
     private CounterColor[] defaultCounterColors =
-            {new CounterColor(0, Color.black),
+            {new CounterColor(0, Globals.getSettings().getBooleanSetting(Settings.Bool.DARK_MODE_ENABLED) ? Color.white: Color.black),
                     new CounterColor(1, Color.blue),
                     new CounterColor(2, Color.green),
                     new CounterColor(3, Color.yellow),
@@ -297,7 +297,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         wordsPerUnitSelector = new JComboBox<>(wordsPerUnitChoices);
         wordsPerUnitSelector.setEditable(false);
-        wordsPerUnitSelector.setBackground(backgroundColor);
         wordsPerUnitSelector.setSelectedIndex(defaultWordsPerUnitIndex);
         wordsPerUnitSelector.setToolTipText("Number of memory words represented by one visualization element (rectangle)");
         wordsPerUnitSelector.addActionListener(
@@ -309,7 +308,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         visualizationUnitPixelWidthSelector = new JComboBox<>(visualizationUnitPixelWidthChoices);
         visualizationUnitPixelWidthSelector.setEditable(false);
-        visualizationUnitPixelWidthSelector.setBackground(backgroundColor);
         visualizationUnitPixelWidthSelector.setSelectedIndex(defaultVisualizationUnitPixelWidthIndex);
         visualizationUnitPixelWidthSelector.setToolTipText("Width in pixels of rectangle representing memory access");
         visualizationUnitPixelWidthSelector.addActionListener(
@@ -322,7 +320,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         visualizationUnitPixelHeightSelector = new JComboBox<>(visualizationUnitPixelHeightChoices);
         visualizationUnitPixelHeightSelector.setEditable(false);
-        visualizationUnitPixelHeightSelector.setBackground(backgroundColor);
         visualizationUnitPixelHeightSelector.setSelectedIndex(defaultVisualizationUnitPixelHeightIndex);
         visualizationUnitPixelHeightSelector.setToolTipText("Height in pixels of rectangle representing memory access");
         visualizationUnitPixelHeightSelector.addActionListener(
@@ -335,7 +332,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         visualizationPixelWidthSelector = new JComboBox<>(displayAreaPixelWidthChoices);
         visualizationPixelWidthSelector.setEditable(false);
-        visualizationPixelWidthSelector.setBackground(backgroundColor);
         visualizationPixelWidthSelector.setSelectedIndex(defaultDisplayWidthIndex);
         visualizationPixelWidthSelector.setToolTipText("Total width in pixels of visualization area");
         visualizationPixelWidthSelector.addActionListener(
@@ -351,7 +347,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         visualizationPixelHeightSelector = new JComboBox<>(displayAreaPixelHeightChoices);
         visualizationPixelHeightSelector.setEditable(false);
-        visualizationPixelHeightSelector.setBackground(backgroundColor);
         visualizationPixelHeightSelector.setSelectedIndex(defaultDisplayHeightIndex);
         visualizationPixelHeightSelector.setToolTipText("Total height in pixels of visualization area");
         visualizationPixelHeightSelector.addActionListener(
@@ -367,7 +362,6 @@ public class MemoryReferenceVisualization extends AbstractToolAndApplication {
                 });
         displayBaseAddressSelector = new JComboBox<>(displayBaseAddressChoices);
         displayBaseAddressSelector.setEditable(false);
-        displayBaseAddressSelector.setBackground(backgroundColor);
         displayBaseAddressSelector.setSelectedIndex(defaultBaseAddressIndex);
         displayBaseAddressSelector.setToolTipText("Base address for visualization area (upper left corner)");
         displayBaseAddressSelector.addActionListener(
