@@ -1,5 +1,4 @@
-#exit:42
-#selfmod:true
+#error:Instruction load access error
 .text 
 main:
 	la s0, toload

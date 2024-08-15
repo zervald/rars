@@ -48,19 +48,18 @@ public class RarsTest {
         Options opt = new Options();
         opt.startAtMain = true;
         opt.maxSteps = 1000000;
-        opt.selfModifyingCode = true;
         return new Program(opt);
     }
 
     public void checkPrograms() {
 
+        // 32-bit tests
         Program p = setupProgram(false);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests", p);
 
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
-        InstructionSet.rv64 = true;
-        Globals.instructionSet.populate();
+        // 64-bit tests
+        p = setupProgram(true);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests-64", p);
 
@@ -100,6 +99,7 @@ public class RarsTest {
         int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
+        p.getOptions().selfModifyingCode = false;
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             String line = br.readLine();
@@ -131,6 +131,11 @@ public class RarsTest {
                     programArgumentList = new ProgramArgumentList(args).getProgramArgumentList();
                 } else if (line.startsWith("#error:")) {
                     errorMessage = line.replaceFirst("#error:", "");
+                } else if (line.startsWith("#selfmod:")) {
+                    String selfmod = line.replaceFirst("#selfmod:", "");
+		            if (selfmod.equals("true")) {
+			            p.getOptions().selfModifyingCode = true;
+		            }
                 }
                 line = br.readLine();
             }
