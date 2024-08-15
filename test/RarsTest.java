@@ -6,6 +6,7 @@ import rars.simulator.ProgramArgumentList;
 import rars.simulator.Simulator;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -94,6 +95,8 @@ public class RarsTest {
         int[] errorlines = null;
         String stdin = "", stdout = "", stderr ="", errorMessage = "", exitReason = "";
         ArrayList<String> programArgumentList = null;
+        ArrayList<String> fileList = new ArrayList<>();
+        fileList.add(path);
         int exitCode = 0;
         // TODO: better config system
         // This is just a temporary solution that should work for the tests I want to write
@@ -107,6 +110,9 @@ public class RarsTest {
                     for(int i = 0; i < linenumbers.length; i++){
                         errorlines[i] = Integer.parseInt(linenumbers[i].trim());
                     }
+                } else if (line.startsWith("#lib:")) {
+                    String lib = line.replaceFirst("#lib:", "");
+                    fileList.add(Paths.get(path).getParent().resolve(lib).toString());
                 } else if (line.startsWith("#stdin:")) {
                     stdin = line.replaceFirst("#stdin:", "").replaceAll("\\\\n","\n");
                 } else if (line.startsWith("#stdout:")) {
@@ -134,7 +140,7 @@ public class RarsTest {
             return "Error reading " + path;
         }
         try {
-            p.assemble(path);
+            p.assemble(fileList, path);
             if(errorlines != null){
                 return "Expected assembly error, but successfully assembled " + path;
             }
