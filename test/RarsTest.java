@@ -52,14 +52,13 @@ public class RarsTest {
 
     public void checkPrograms() {
 
+        // 32-bit tests
         Program p = setupProgram(false);
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,false);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests", p);
 
-        Globals.getSettings().setBooleanSettingNonPersistent(Settings.Bool.RV64_ENABLED,true);
-        InstructionSet.rv64 = true;
-        Globals.instructionSet.populate();
+        // 64-bit tests
+        p = setupProgram(true);
         runDirectory("./test", p);
         runDirectory("./test/riscv-tests-64", p);
 
