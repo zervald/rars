@@ -7,6 +7,7 @@ import rars.riscv.InstructionSet;
 import rars.riscv.dump.DumpFormatLoader;
 import rars.simulator.Simulator;
 import rars.simulator.SimulatorNotice;
+import rars.tools.ConversionTool;
 import rars.venus.registers.ControlAndStatusWindow;
 import rars.venus.registers.FloatingPointWindow;
 import rars.venus.registers.RegistersPane;
@@ -96,6 +97,7 @@ public class VenusUI extends JFrame {
     private JButton New, Open, Save, SaveAs, SaveAll, DumpMemory;
     private JButton Run, Assemble, Reset, Step, Backstep, Stop, Pause;
     private JButton Help;
+    ConversionTool conversionTool = new ConversionTool();
 
     // The "action" objects, which include action listeners.  One of each will be created then
     // shared between a menu item and its corresponding toolbar button.  This is a very cool
@@ -204,6 +206,7 @@ public class VenusUI extends JFrame {
         JPanel jp = new JPanel(new FlowLayout(FlowLayout.LEFT));
         jp.add(toolbar);
         jp.add(RunSpeedPanel.getInstance());
+        jp.add(conversionTool.createConversionToolPanel());
         JPanel center = new JPanel(new BorderLayout());
         center.add(jp, BorderLayout.NORTH);
         center.add(horizonSplitter);
