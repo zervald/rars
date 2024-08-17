@@ -19,7 +19,7 @@ public class ConversionTool {
         panel.setLayout(new FlowLayout());
 
         // Create labels and text fields for each format
-        JLabel decimalLabel = new JLabel("Decimal:");
+        JLabel decimalLabel = new JLabel("Dec:");
         JTextField decimalField = new JTextField(5);
         decimalField.setToolTipText("Enter a decimal number (e.g., 97)");
 
@@ -27,11 +27,11 @@ public class ConversionTool {
         JTextField hexField = new JTextField(7);
         hexField.setToolTipText("Enter a hexadecimal number with or without '0x' prefix (e.g., 0x61)");
 
-        JLabel binaryLabel = new JLabel("Binary:");
+        JLabel binaryLabel = new JLabel("Bin:");
         JTextField binaryField = new JTextField(10);
         binaryField.setToolTipText("Enter a binary number with or without '0b' prefix (e.g., 0b01100001)");
 
-        JLabel charLabel = new JLabel("Ascii:");
+        JLabel charLabel = new JLabel("ASCII:");
         JTextField charField = new JTextField(2);
         charField.setToolTipText("Enter a single character (e.g., a)");
 
@@ -144,7 +144,10 @@ public class ConversionTool {
             int decimal = Integer.parseInt(decimalField.getText());
             hexField.setText("0x" + Integer.toHexString(decimal));
             binaryField.setText("0b" + Integer.toBinaryString(decimal));
-            charField.setText(Character.toString((char) decimal));
+            if (decimal <= 127)
+                charField.setText(Character.toString((char) decimal));
+            else
+                charField.setText("");
         } catch (NumberFormatException ex) {
             hexField.setText("");
             binaryField.setText("");
@@ -172,7 +175,10 @@ public class ConversionTool {
             int decimal = Integer.parseInt(hexInput, 16);
             decimalField.setText(Integer.toString(decimal));
             binaryField.setText("0b" + Integer.toBinaryString(decimal));
-            charField.setText(Character.toString((char) decimal));
+            if (decimal <= 127)
+                charField.setText(Character.toString((char) decimal));
+            else
+                charField.setText("");
         } catch (NumberFormatException ex) {
             decimalField.setText("");
             binaryField.setText("");
@@ -200,7 +206,10 @@ public class ConversionTool {
             int decimal = Integer.parseInt(binaryInput, 2);
             decimalField.setText(Integer.toString(decimal));
             hexField.setText("0x" + Integer.toHexString(decimal));
-            charField.setText(Character.toString((char) decimal));
+            if (decimal <= 127)
+                charField.setText(Character.toString((char) decimal));
+            else
+                charField.setText("");
         } catch (NumberFormatException ex) {
             decimalField.setText("");
             hexField.setText("");
