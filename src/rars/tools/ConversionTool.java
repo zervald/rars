@@ -5,13 +5,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 
-/**
- * Add conversion for decimal, hexadecimal, binary and ascii tool to the toolbar
- *
- * @author Julián Hinojosa
- * @version August 2024
- **/
-
 public class ConversionTool {
     private boolean updating = false;
 
