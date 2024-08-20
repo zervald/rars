@@ -1,12 +1,3 @@
-/*
- * MIPSTokenMarker.java - MIPS Assembly token marker
- * Copyright (C) 1998, 1999 Slava Pestov, 2010 Pete Sanderson
- *
- * You may use and modify this package for any purpose. Redistribution is
- * permitted, in both source and binary form, provided that this notice
- * remains intact in all source distributions of this package.
- */
-
 package rars.venus.editors.jeditsyntax.tokenmarker;
 
 import rars.*;
