@@ -101,7 +101,7 @@ public class RarsTest {
         // This is just a temporary solution that should work for the tests I want to write
         p.getOptions().selfModifyingCode = false;
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line = br.readLine();
             while(line != null){
                 if (line.startsWith("#error on lines:")) {
