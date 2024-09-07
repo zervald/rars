@@ -11,7 +11,7 @@ if git submodule status | grep \( > /dev/null ; then
     fi
     cp -rf build/src/* build
     rm -r build/src
-    cp README.md License.txt build
+    cp README.md LICENSE build
     cd build
     jar cfm ../rars.jar ./META-INF/MANIFEST.MF *
     chmod +x ../rars.jar

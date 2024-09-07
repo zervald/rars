@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>rars</groupId>
 	<artifactId>rars</artifactId>
-	<version>1.6-git</version>
+	<version>1.7-git</version>
 	<packaging>jar</packaging>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->

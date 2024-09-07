@@ -27,7 +27,7 @@ import java.util.Vector;
  * Action  for the Help -> Help menu item
  */
 public class HelpHelpAction extends GuiAction {
-    private VenusUI mainUI;
+    private final VenusUI mainUI;
 
     public HelpHelpAction(String name, Icon icon, String descrip,
                           Integer mnemonic, KeyStroke accel, VenusUI gui) {
