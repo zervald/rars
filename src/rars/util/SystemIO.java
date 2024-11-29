@@ -64,7 +64,14 @@ public class SystemIO {
      * @return int value corresponding to user input
      */
 
-    public static long readInteger(int serviceNumber) throws CancelException {
+    public static int readInteger(int serviceNumber) throws CancelException {
+        String input = readStringInternal("0", "Enter an integer value (syscall " + serviceNumber + ")", -1);
+        // Client is responsible for catching NumberFormatException
+        if (input == null) throw new CancelException();
+        return Integer.parseInt(input.trim());
+    }
+
+    public static long readLong(int serviceNumber) throws CancelException {
         String input = readStringInternal("0", "Enter an integer value (syscall " + serviceNumber + ")", -1);
         // Client is responsible for catching NumberFormatException
         if (input == null) throw new CancelException();
