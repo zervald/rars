@@ -86,7 +86,8 @@ public class VenusUI extends JFrame {
             settingsExtendedAction, settingsAssembleOnOpenAction, settingsAssembleOpenAction, settingsAssembleAllAction,
             settingsWarningsAreErrorsAction, settingsStartAtMainAction,
             settingsExceptionHandlerAction, settingsEditorAction, settingsHighlightingAction, settingsMemoryConfigurationAction,
-            settingsSelfModifyingCodeAction, settingsRV64Action, settingsDeriveCurrentWorkingDirectoryAction, settingsDarkModeAction;
+            settingsSelfModifyingCodeAction, settingsRV64Action, settingsDeriveCurrentWorkingDirectoryAction, settingsDarkModeAction,
+            settingsDisplayRegisterNumbersAction;
     private Action helpHelpAction, helpAboutAction;
 
 
@@ -441,6 +442,8 @@ public class VenusUI extends JFrame {
                     Settings.Bool.DERIVE_CURRENT_WORKING_DIRECTORY);
             settingsDarkModeAction = new SettingsAction("Dark mode", "If set, RARS will be in dark mode at the next opening. Uncheck for light mode",
                     Settings.Bool.DARK_MODE_ENABLED);
+            settingsDisplayRegisterNumbersAction = new SettingsAction("Display Register Numbers", "Toggle display of register numbers in the Registers Tab",
+                    Settings.Bool.DISPLAY_REGISTER_NUMBERS);
 
             settingsEditorAction = new SettingsEditorAction("Editor...", null,
                     "View and modify text editor settings.", null, null
@@ -456,6 +459,7 @@ public class VenusUI extends JFrame {
                     null, "View and modify memory segment base addresses for the simulated processor",
                     null, null
             );
+            
 
             helpHelpAction = new HelpHelpAction("Help", loadIcon("Help22.png"),
                     "Help", KeyEvent.VK_H, KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), mainUI);
