@@ -60,7 +60,8 @@ public class VenusUI extends JFrame {
     private JMenuItem runGo, runStep, runBackstep, runReset, runAssemble, runStop, runPause, runClearBreakpoints, runToggleBreakpoints;
     private JCheckBoxMenuItem settingsLabel, settingsValueDisplayBase, settingsAddressDisplayBase,
             settingsExtended, settingsAssembleOnOpen, settingsAssembleAll, settingsAssembleOpen, settingsWarningsAreErrors,
-            settingsStartAtMain, settingsSelfModifyingCode, settingsRV64, settingsDeriveCurrentWorkingDirectory, settingsDarkMode;
+            settingsStartAtMain, settingsSelfModifyingCode, settingsRV64, settingsDeriveCurrentWorkingDirectory, settingsDarkMode, 
+            settingsDisplayRegisterNumbers;
     private JMenuItem settingsExceptionHandler, settingsEditor, settingsHighlighting, settingsMemoryConfiguration;
     private JMenuItem helpHelp, helpAbout;
 
@@ -616,6 +617,8 @@ public class VenusUI extends JFrame {
                 }
             }
         });
+        settingsDisplayRegisterNumbers = new JCheckBoxMenuItem(settingsDisplayRegisterNumbersAction);
+        settingsDisplayRegisterNumbers.setSelected(Globals.getSettings().getBooleanSetting(Settings.Bool.DISPLAY_REGISTER_NUMBERS));
         settingsAssembleOnOpen = new JCheckBoxMenuItem(settingsAssembleOnOpenAction);
         settingsAssembleOnOpen.setSelected(Globals.getSettings().getBooleanSetting(Settings.Bool.ASSEMBLE_ON_OPEN));
         settingsAssembleAll = new JCheckBoxMenuItem(settingsAssembleAllAction);
@@ -647,6 +650,7 @@ public class VenusUI extends JFrame {
         settings.add(settingsRV64);
         settings.addSeparator();
         settings.add(settingsDarkMode);
+        settings.add(settingsDisplayRegisterNumbers);
         settings.add(settingsEditor);
         settings.add(settingsHighlighting);
         settings.add(settingsExceptionHandler);
