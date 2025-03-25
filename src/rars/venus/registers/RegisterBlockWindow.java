@@ -361,13 +361,14 @@ public abstract class RegisterBlockWindow extends JPanel implements Observer {
             int rowIndex = rowAtPoint(p);
             int colIndex = columnAtPoint(p);
             int realColumnIndex = convertColumnIndexToModel(colIndex);
-            if (realColumnIndex == NAME_COLUMN) { //Register name column
-                return regToolTips[rowIndex];
-            } else {
-                //You can omit this part if you know you don't have any
-                //renderers that supply their own tool tips.
-                return super.getToolTipText(e);
-            }
+            switch (realColumnIndex) {
+            	case NAME_COLUMN:  return regToolTips[rowIndex];
+            	case VALUE_COLUMN: return formatRegister(registers[rowIndex], NumberDisplayBaseChooser.DECIMAL);
+            	default:
+            		//You can omit this part if you know you don't have any
+	                //renderers that supply their own tool tips.
+	                return super.getToolTipText(e);
+	        }
         }
 
         private String[] columnToolTips;
