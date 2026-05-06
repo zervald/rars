@@ -18,6 +18,14 @@
         {
           packages.rarsm = appliedOverlay.rarsm;
           packages.default = appliedOverlay.rarsm;
+
+          devShells.default = pkgs.mkShellNoCC {
+            packages = with pkgs; [
+              openjdk
+              coreutils
+              appliedOverlay.rarsm
+            ];
+          };
         };
     in
     flake-utils.lib.eachDefaultSystem out
